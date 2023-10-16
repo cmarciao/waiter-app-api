@@ -1,6 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoriesRepository } from 'src/shared/database/repositories/categories.repository';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -14,12 +19,30 @@ export class CategoriesService {
         }
 
         const category = await this.categoriesRepository.create({
-            data: {
-                emoji,
-                name,
-            },
+            emoji,
+            name,
         });
 
         return category;
+    }
+
+    async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+        const categoryFound = await this.categoriesRepository.findById(id);
+
+        if (!categoryFound) {
+            throw new NotFoundException('Category not found.');
+        }
+
+        const newCategory = {
+            ...categoryFound,
+            ...updateCategoryDto,
+        };
+
+        const updatedCategory = await this.categoriesRepository.update(
+            id,
+            newCategory,
+        );
+
+        return updatedCategory;
     }
 }
