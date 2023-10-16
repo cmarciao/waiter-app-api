@@ -8,7 +8,7 @@ import { UsersRepository } from 'src/shared/database/repositories/users.reposito
 export class UsersService {
     constructor(private readonly usersRepository: UsersRepository) {}
 
-    async create({ name, email, type, password }: CreateUserDto) {
+    async create({ name, email, password, type }: CreateUserDto) {
         const emailFound = await this.usersRepository.findByEmail(email);
 
         if (emailFound) {
