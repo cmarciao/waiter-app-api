@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Put, Param } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    UseGuards,
+    Put,
+    Param,
+    Get,
+} from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
@@ -11,6 +19,12 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 @Controller('categories')
 export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) {}
+
+    @Get()
+    @UseGuards(RoleGuard)
+    findAll() {
+        return this.categoriesService.findAll();
+    }
 
     @Post()
     @UseGuards(RoleGuard)

@@ -14,6 +14,10 @@ export class CategoriesRepository {
         });
     }
 
+    findAll() {
+        return this.prismaService.category.findMany();
+    }
+
     findById(id: string) {
         return this.prismaService.category.findUnique({
             where: {

@@ -26,6 +26,11 @@ export class CategoriesService {
         return category;
     }
 
+    async findAll() {
+        const categories = await this.categoriesRepository.findAll();
+        return categories;
+    }
+
     async update(id: string, updateCategoryDto: UpdateCategoryDto) {
         const categoryFound = await this.categoriesRepository.findById(id);
 
