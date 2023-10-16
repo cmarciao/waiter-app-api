@@ -42,4 +42,12 @@ export class CategoriesRepository {
             },
         });
     }
+
+    remove(id: string) {
+        return this.prismaService.category.delete({
+            where: {
+                id,
+            },
+        });
+    }
 }

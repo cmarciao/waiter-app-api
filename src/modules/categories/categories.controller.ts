@@ -6,6 +6,7 @@ import {
     Put,
     Param,
     Get,
+    Delete,
 } from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -41,5 +42,12 @@ export class CategoriesController {
         @Body() updateCategoryDto: UpdateCategoryDto,
     ) {
         return this.categoriesService.update(id, updateCategoryDto);
+    }
+
+    @Delete(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    remove(@Param('id') id: string) {
+        return this.categoriesService.remove(id);
     }
 }

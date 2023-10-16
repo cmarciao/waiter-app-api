@@ -50,4 +50,16 @@ export class CategoriesService {
 
         return updatedCategory;
     }
+
+    async remove(id: string) {
+        const categoryFound = await this.categoriesRepository.findById(id);
+
+        if (!categoryFound) {
+            throw new NotFoundException('Category not found.');
+        }
+
+        await this.categoriesRepository.remove(id);
+
+        return null;
+    }
 }
