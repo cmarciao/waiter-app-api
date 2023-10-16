@@ -22,7 +22,6 @@ export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) {}
 
     @Get()
-    @UseGuards(RoleGuard)
     findAll() {
         return this.categoriesService.findAll();
     }
