@@ -23,3 +23,11 @@ model User {
 
     @@map("users")
 }
+
+model Category {
+    id    String @id @default(uuid()) @db.Uuid
+    emoji String
+    name  String @unique
+
+    @@map("categories")
+}
