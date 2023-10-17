@@ -14,6 +14,10 @@ export class IngredientsRepository {
         });
     }
 
+    findAll() {
+        return this.prismaService.ingredient.findMany();
+    }
+
     findById(id: string) {
         return this.prismaService.ingredient.findUnique({
             where: {

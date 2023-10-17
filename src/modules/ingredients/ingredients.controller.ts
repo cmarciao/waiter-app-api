@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Put, Param } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    UseGuards,
+    Put,
+    Param,
+    Get,
+} from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
@@ -11,6 +19,13 @@ import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 @Controller('ingredients')
 export class IngredientsController {
     constructor(private readonly ingredientsService: IngredientsService) {}
+
+    @Get()
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    findAll() {
+        return this.ingredientsService.findAll();
+    }
 
     @Post()
     @UseGuards(RoleGuard)

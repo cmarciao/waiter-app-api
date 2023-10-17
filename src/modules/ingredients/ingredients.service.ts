@@ -29,6 +29,11 @@ export class IngredientsService {
         return ingredient;
     }
 
+    async findAll() {
+        const ingredients = await this.ingredientsRepository.findAll();
+        return ingredients;
+    }
+
     async update(id: string, updateIngredientDto: UpdateIngredientDto) {
         const ingredientFound = await this.ingredientsRepository.findById(id);
 
