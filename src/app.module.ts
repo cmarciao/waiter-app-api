@@ -9,9 +9,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { DatabaseModule } from './shared/database/database.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { IngredientsModule } from './modules/ingredients/ingredients.module';
 
 @Module({
-    imports: [UsersModule, DatabaseModule, AuthModule, CategoriesModule],
+    imports: [UsersModule, DatabaseModule, AuthModule, CategoriesModule, IngredientsModule],
     controllers: [],
     providers: [
         {
