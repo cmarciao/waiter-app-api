@@ -50,7 +50,7 @@ export class AuthGuard implements CanActivate {
 
             request['user'] = user;
         } catch {
-            throw new UnauthorizedException('Missing authorization token.');
+            throw new UnauthorizedException('Error in authorization checking.');
         }
 
         return true;
