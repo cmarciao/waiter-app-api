@@ -31,3 +31,11 @@ model Category {
 
     @@map("categories")
 }
+
+model Ingredient {
+    id    String @id @default(uuid()) @db.Uuid
+    emoji String
+    name  String @unique
+
+    @@map("ingredients")
+}
