@@ -40,6 +40,23 @@ export class UsersService {
         };
     }
 
+    async findAll() {
+        const usersList = await this.usersRepository.findAll();
+        const users = usersList.map((user) => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            type: user.type,
+        }));
+
+        return users;
+    }
+
+    async findOne(id: string) {
+        const user = await this.usersRepository.findById(id);
+        return user;
+    }
+
     async update(
         activeUserId: string,
         updateUserid: string,

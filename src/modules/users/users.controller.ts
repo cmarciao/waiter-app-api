@@ -6,6 +6,7 @@ import {
     UseGuards,
     Param,
     Delete,
+    Get,
 } from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -20,6 +21,20 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
+
+    @Get()
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    findAll() {
+        return this.usersService.findAll();
+    }
+
+    @Get(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    findOne(@Param('id') id: string) {
+        return this.usersService.findOne(id);
+    }
 
     @Post()
     @UseGuards(RoleGuard)
