@@ -1,7 +1,13 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { hash } from 'bcryptjs';
 
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from 'src/shared/database/repositories/users.repository';
 
 @Injectable()
@@ -31,6 +37,44 @@ export class UsersService {
             name: user.name,
             email: user.email,
             type: user.type,
+        };
+    }
+
+    async update(
+        activeUserId: string,
+        updateUserid: string,
+        updateUserDto: UpdateUserDto,
+    ) {
+        const userFound = await this.usersRepository.findById(updateUserid);
+
+        if (!userFound) {
+            throw new NotFoundException('User not found.');
+        }
+
+        if (
+            userFound.id === activeUserId &&
+            userFound.type !== updateUserDto.type
+        ) {
+            throw new BadRequestException(
+                'You can not change your own type user.',
+            );
+        }
+
+        const newUser = {
+            ...userFound,
+            ...updateUserDto,
+        };
+
+        const updatedUser = await this.usersRepository.update(
+            updateUserid,
+            newUser,
+        );
+
+        return {
+            id: updatedUser.id,
+            name: updatedUser.name,
+            emai: updatedUser.email,
+            type: updatedUser.type,
         };
     }
 }
