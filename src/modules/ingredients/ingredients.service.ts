@@ -34,6 +34,16 @@ export class IngredientsService {
         return ingredients;
     }
 
+    async findOne(id: string) {
+        const ingredientFound = await this.ingredientsRepository.findById(id);
+
+        if (!ingredientFound) {
+            throw new NotFoundException('Ingredient not found.');
+        }
+
+        return ingredientFound;
+    }
+
     async update(id: string, updateIngredientDto: UpdateIngredientDto) {
         const ingredientFound = await this.ingredientsRepository.findById(id);
 

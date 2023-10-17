@@ -27,6 +27,13 @@ export class IngredientsController {
         return this.ingredientsService.findAll();
     }
 
+    @Get(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    findOne(@Param('id') id: string) {
+        return this.ingredientsService.findOne(id);
+    }
+
     @Post()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
