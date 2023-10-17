@@ -1,6 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { IngredientsRepository } from 'src/shared/database/repositories/ingredients.repository';
+import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 
 @Injectable()
 export class IngredientsService {
@@ -22,5 +27,25 @@ export class IngredientsService {
         });
 
         return ingredient;
+    }
+
+    async update(id: string, updateIngredientDto: UpdateIngredientDto) {
+        const ingredientFound = await this.ingredientsRepository.findById(id);
+
+        if (!ingredientFound) {
+            throw new NotFoundException('Ingredient not found.');
+        }
+
+        const newIngredient = {
+            ...ingredientFound,
+            ...updateIngredientDto,
+        };
+
+        const updatedIngredient = await this.ingredientsRepository.update(
+            id,
+            newIngredient,
+        );
+
+        return updatedIngredient;
     }
 }

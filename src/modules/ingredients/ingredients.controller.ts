@@ -1,11 +1,12 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Put, Param } from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
-import { CreateIngredientDto } from './dto/create-ingredient.dto';
+import { UserType } from '../users/entities/enums/UserType';
 
 import { IngredientsService } from './ingredients.service';
-import { UserType } from '../users/entities/enums/UserType';
+import { CreateIngredientDto } from './dto/create-ingredient.dto';
+import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 
 @Controller('ingredients')
 export class IngredientsController {
@@ -16,5 +17,15 @@ export class IngredientsController {
     @Roles(UserType.ADMIN)
     create(@Body() createIngredientDto: CreateIngredientDto) {
         return this.ingredientsService.create(createIngredientDto);
+    }
+
+    @Put(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    update(
+        @Param('id') id: string,
+        @Body() updateIngredientDto: UpdateIngredientDto,
+    ) {
+        return this.ingredientsService.update(id, updateIngredientDto);
     }
 }
