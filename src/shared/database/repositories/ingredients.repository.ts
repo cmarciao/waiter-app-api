@@ -42,4 +42,12 @@ export class IngredientsRepository {
             },
         });
     }
+
+    remove(id: string) {
+        return this.prismaService.ingredient.delete({
+            where: {
+                id,
+            },
+        });
+    }
 }

@@ -6,6 +6,7 @@ import {
     Put,
     Param,
     Get,
+    Delete,
 } from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -49,5 +50,12 @@ export class IngredientsController {
         @Body() updateIngredientDto: UpdateIngredientDto,
     ) {
         return this.ingredientsService.update(id, updateIngredientDto);
+    }
+
+    @Delete(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    remove(@Param('id') id: string) {
+        return this.ingredientsService.remove(id);
     }
 }

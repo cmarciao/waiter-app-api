@@ -63,4 +63,16 @@ export class IngredientsService {
 
         return updatedIngredient;
     }
+
+    async remove(id: string) {
+        const ingredientFound = await this.ingredientsRepository.findById(id);
+
+        if (!ingredientFound) {
+            throw new NotFoundException('Ingredient not found.');
+        }
+
+        await this.ingredientsRepository.remove(id);
+
+        return null;
+    }
 }
