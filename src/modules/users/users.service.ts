@@ -77,4 +77,16 @@ export class UsersService {
             type: updatedUser.type,
         };
     }
+
+    async remove(id: string) {
+        const userFound = await this.usersRepository.findById(id);
+
+        if (!userFound) {
+            throw new NotFoundException('User not found.');
+        }
+
+        await this.usersRepository.remove(id);
+
+        return null;
+    }
 }
