@@ -29,6 +29,8 @@ model Category {
     emoji String
     name  String @unique
 
+    ProductToCategories ProductToCategories[]
+
     @@map("categories")
 }
 
@@ -37,5 +39,41 @@ model Ingredient {
     emoji String
     name  String @unique
 
+    products ProductToIngredients[]
+
     @@map("ingredients")
+}
+
+model Product {
+    id          String @id @default(uuid()) @db.Uuid
+    name        String @unique
+    description String
+    imageUrl    String
+
+    categories  ProductToCategories[]
+    ingredients ProductToIngredients[]
+
+    @@map("products")
+}
+
+model ProductToCategories {
+    productId  String @db.Uuid
+    categoryId String @db.Uuid
+
+    product  Product  @relation(fields: [productId], references: [id])
+    category Category @relation(fields: [categoryId], references: [id])
+
+    @@id([productId, categoryId])
+    @@map("product_categories")
+}
+
+model ProductToIngredients {
+    productId    String @db.Uuid
+    ingredientId String @db.Uuid
+
+    product    Product    @relation(fields: [productId], references: [id])
+    ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+    @@id([productId, ingredientId])
+    @@map("product_ingredients")
 }
