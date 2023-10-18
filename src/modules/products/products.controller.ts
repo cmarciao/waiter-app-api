@@ -8,6 +8,7 @@ import {
     UseInterceptors,
     UploadedFile,
     UsePipes,
+    Delete,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
@@ -43,5 +44,12 @@ export class ProductsController {
             ...createProductDto,
             image: file,
         });
+    }
+
+    @Delete(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    remove(@Param('id') id: string) {
+        return this.productsService.remove(id);
     }
 }

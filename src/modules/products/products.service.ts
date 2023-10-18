@@ -50,4 +50,16 @@ export class ProductsService {
 
         return product;
     }
+
+    async remove(id: string) {
+        const product = await this.productsRepository.findById(id);
+
+        if (!product) {
+            throw new NotFoundException('Product not found.');
+        }
+
+        await this.productsRepository.remove(id);
+
+        return null;
+    }
 }

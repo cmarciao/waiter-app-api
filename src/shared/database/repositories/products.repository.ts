@@ -96,6 +96,26 @@ export class ProductsRepository {
         });
     }
 
+    async remove(id: string) {
+        await this.prismaService.productToCategories.deleteMany({
+            where: {
+                productId: id,
+            },
+        });
+
+        await this.prismaService.productToIngredients.deleteMany({
+            where: {
+                productId: id,
+            },
+        });
+
+        return this.prismaService.product.delete({
+            where: {
+                id,
+            },
+        });
+    }
+
     private productMapper(
         product: Product,
         ingredients: { ingredient: Ingredient }[],
