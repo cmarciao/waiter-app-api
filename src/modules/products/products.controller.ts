@@ -9,6 +9,7 @@ import {
     UploadedFile,
     UsePipes,
     Delete,
+    Put,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
@@ -19,6 +20,8 @@ import { UserType } from '../users/entities/enums/UserType';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductPipe } from 'src/shared/pipes/create-product.pipe';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { UpdateProductPipe } from 'src/shared/pipes/update-product.pipe';
 
 @Controller('products')
 export class ProductsController {
@@ -54,6 +57,25 @@ export class ProductsController {
             ...createProductDto,
             image: file,
         });
+    }
+
+    @Put(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    @UseInterceptors(FileInterceptor('image'))
+    @UsePipes(new UpdateProductPipe())
+    update(
+        @Param('id') id: string,
+        @UploadedFile() file: Express.Multer.File,
+        @Body() updateProductDto: UpdateProductDto,
+    ) {
+        const params = { ...updateProductDto };
+
+        if (file) {
+            Object.assign(params, { image: file });
+        }
+
+        return this.productsService.update(id, params);
     }
 
     @Delete(':id')

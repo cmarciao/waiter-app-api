@@ -3,6 +3,7 @@ import { Category, Ingredient, Product } from '@prisma/client';
 
 import { PrismaService } from '../prisma.service';
 import { CreateProductDto } from 'src/modules/products/dto/create-product.dto';
+import { UpdateProductDto } from 'src/modules/products/dto/update-product.dto';
 
 @Injectable()
 export class ProductsRepository {
@@ -155,6 +156,68 @@ export class ProductsRepository {
                 name,
             },
         });
+    }
+
+    async update(id: string, updateProductDto: UpdateProductDto) {
+        const { categoryIds, ingredientIds } = updateProductDto;
+
+        const categories = categoryIds?.map((category) => ({
+            categoryId: category,
+        }));
+        const ingredients = ingredientIds?.map((ingredient) => ({
+            ingredientId: ingredient,
+        }));
+
+        if (categories) {
+            await this.prismaService.productToCategories.updateMany({
+                where: {
+                    productId: id,
+                    categoryId: {
+                        in: categoryIds,
+                    },
+                },
+                data: categories,
+            });
+        }
+
+        if (ingredients) {
+            await this.prismaService.productToIngredients.updateMany({
+                where: {
+                    productId: id,
+                    ingredientId: {
+                        in: ingredientIds,
+                    },
+                },
+                data: ingredients,
+            });
+        }
+
+        const response = await this.prismaService.product.update({
+            where: {
+                id,
+            },
+            data: updateProductDto,
+            include: {
+                ingredients: {
+                    select: {
+                        ingredient: true,
+                    },
+                },
+                categories: {
+                    select: {
+                        category: true,
+                    },
+                },
+            },
+        });
+
+        const product = this.productMapper(
+            response,
+            response.ingredients,
+            response.categories,
+        );
+
+        return product;
     }
 
     async remove(id: string) {

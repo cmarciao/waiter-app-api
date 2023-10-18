@@ -3,10 +3,11 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
+import { imagekit } from 'src/shared/services/imagekit.config';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductsRepository } from 'src/shared/database/repositories/products.repository';
-import { imagekit } from 'src/shared/services/imagekit.config';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -60,6 +61,38 @@ export class ProductsService {
         }
 
         return product;
+    }
+
+    async update(id: string, updateProductDto: UpdateProductDto) {
+        const product = await this.productsRepository.findById(id);
+
+        if (!product) {
+            throw new NotFoundException('Product not found.');
+        }
+
+        let updatedProduct = null;
+        if (updateProductDto?.image) {
+            const { image, ...rest } = updateProductDto;
+
+            await imagekit.deleteFile(product.imageId);
+            const imagekitResponse = await imagekit.upload({
+                fileName: image.originalname,
+                file: image.buffer,
+            });
+
+            updatedProduct = await this.productsRepository.update(id, {
+                ...rest,
+                imageId: imagekitResponse.fileId,
+                imageUrl: imagekitResponse.url,
+            });
+        } else {
+            updatedProduct = await this.productsRepository.update(
+                id,
+                updateProductDto,
+            );
+        }
+
+        return updatedProduct;
     }
 
     async remove(id: string) {
