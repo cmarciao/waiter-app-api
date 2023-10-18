@@ -70,29 +70,45 @@ export class ProductsService {
             throw new NotFoundException('Product not found.');
         }
 
-        let updatedProduct = null;
-        if (updateProductDto?.image) {
-            const { image, ...rest } = updateProductDto;
-
-            await imagekit.deleteFile(product.imageId);
-            const imagekitResponse = await imagekit.upload({
-                fileName: image.originalname,
-                file: image.buffer,
-            });
-
-            updatedProduct = await this.productsRepository.update(id, {
-                ...rest,
-                imageId: imagekitResponse.fileId,
-                imageUrl: imagekitResponse.url,
-            });
-        } else {
-            updatedProduct = await this.productsRepository.update(
+        if (updateProductDto?.image?.originalname) {
+            return await this.updateWithImageKit(
                 id,
+                product.imageId,
                 updateProductDto,
             );
         }
 
-        return updatedProduct;
+        return this.updateWithoutImageKit(id, updateProductDto);
+    }
+
+    private async updateWithImageKit(
+        id: string,
+        imageId: string,
+        updateProductDto: UpdateProductDto,
+    ) {
+        const { image, ...rest } = updateProductDto;
+
+        await imagekit.deleteFile(imageId);
+        const imagekitResponse = await imagekit.upload({
+            fileName: image.originalname,
+            file: image.buffer,
+        });
+
+        return this.productsRepository.update(id, {
+            ...rest,
+            imageId: imagekitResponse.fileId,
+            imageUrl: imagekitResponse.url,
+        });
+    }
+
+    private updateWithoutImageKit(
+        id: string,
+        updateProductDto: UpdateProductDto,
+    ) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { image: _, ...rest } = updateProductDto;
+
+        return this.productsRepository.update(id, rest);
     }
 
     async remove(id: string) {

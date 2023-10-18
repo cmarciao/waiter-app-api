@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Category, Ingredient, Product } from '@prisma/client';
+import { Product } from '@prisma/client';
 
 import { PrismaService } from '../prisma.service';
 import { CreateProductDto } from 'src/modules/products/dto/create-product.dto';
@@ -49,11 +49,7 @@ export class ProductsRepository {
             },
         });
 
-        const product = this.productMapper(
-            response,
-            response.ingredients,
-            response.categories,
-        );
+        const product = this.productMapper(response);
 
         return product;
     }
@@ -74,13 +70,7 @@ export class ProductsRepository {
             },
         });
 
-        const products = response.map((product) =>
-            this.productMapper(
-                product,
-                product.ingredients,
-                product.categories,
-            ),
-        );
+        const products = response.map((product) => this.productMapper(product));
 
         return products;
     }
@@ -107,13 +97,7 @@ export class ProductsRepository {
                 },
             },
         });
-        const products = response.map((product) =>
-            this.productMapper(
-                product,
-                product.ingredients,
-                product.categories,
-            ),
-        );
+        const products = response.map((product) => this.productMapper(product));
 
         return products;
     }
@@ -141,11 +125,7 @@ export class ProductsRepository {
             return productFound;
         }
 
-        const product = this.productMapper(
-            productFound,
-            productFound.ingredients,
-            productFound.categories,
-        );
+        const product = this.productMapper(productFound);
 
         return product;
     }
@@ -158,9 +138,10 @@ export class ProductsRepository {
         });
     }
 
-    async update(id: string, updateProductDto: UpdateProductDto) {
-        const { categoryIds, ingredientIds } = updateProductDto;
-
+    async update(
+        id: string,
+        { ingredientIds, categoryIds, ...productToUpdate }: UpdateProductDto,
+    ) {
         const categories = categoryIds?.map((category) => ({
             categoryId: category,
         }));
@@ -168,35 +149,59 @@ export class ProductsRepository {
             ingredientId: ingredient,
         }));
 
-        if (categories) {
-            await this.prismaService.productToCategories.updateMany({
-                where: {
-                    productId: id,
-                    categoryId: {
-                        in: categoryIds,
-                    },
-                },
-                data: categories,
-            });
-        }
+        const queriesList = [];
 
         if (ingredients) {
-            await this.prismaService.productToIngredients.updateMany({
-                where: {
-                    productId: id,
-                    ingredientId: {
-                        in: ingredientIds,
+            const deleteAllIngredients =
+                this.prismaService.productToIngredients.deleteMany({
+                    where: {
+                        productId: id,
                     },
-                },
-                data: ingredients,
-            });
+                });
+
+            queriesList.push(deleteAllIngredients);
+
+            for (const ingredientId of ingredientIds) {
+                const query = this.prismaService.productToIngredients.create({
+                    data: {
+                        productId: id,
+                        ingredientId,
+                    },
+                });
+
+                queriesList.push(query);
+            }
         }
 
-        const response = await this.prismaService.product.update({
+        if (categories) {
+            const deleteAllCategories =
+                this.prismaService.productToCategories.deleteMany({
+                    where: {
+                        productId: id,
+                    },
+                });
+
+            queriesList.push(deleteAllCategories);
+
+            for (const categoryId of categoryIds) {
+                const query = this.prismaService.productToCategories.create({
+                    data: {
+                        productId: id,
+                        categoryId,
+                    },
+                });
+
+                queriesList.push(query);
+            }
+        }
+
+        const updateProductQuery = this.prismaService.product.update({
             where: {
                 id,
             },
-            data: updateProductDto,
+            data: {
+                ...productToUpdate,
+            },
             include: {
                 ingredients: {
                     select: {
@@ -211,46 +216,51 @@ export class ProductsRepository {
             },
         });
 
-        const product = this.productMapper(
-            response,
-            response.ingredients,
-            response.categories,
-        );
+        queriesList.push(updateProductQuery);
+
+        const responses = await this.prismaService.$transaction(queriesList);
+        const updateProduct = responses.pop();
+
+        const product = this.productMapper(updateProduct);
 
         return product;
     }
 
     async remove(id: string) {
-        await this.prismaService.productToCategories.deleteMany({
-            where: {
-                productId: id,
-            },
-        });
+        const deleteIngredientsQuery =
+            this.prismaService.productToIngredients.deleteMany({
+                where: {
+                    productId: id,
+                },
+            });
 
-        await this.prismaService.productToIngredients.deleteMany({
-            where: {
-                productId: id,
-            },
-        });
+        const deleteCategoriesQuery =
+            this.prismaService.productToCategories.deleteMany({
+                where: {
+                    productId: id,
+                },
+            });
 
-        return this.prismaService.product.delete({
+        const deleteProductQuery = this.prismaService.product.delete({
             where: {
                 id,
             },
         });
+
+        return this.prismaService.$transaction([
+            deleteIngredientsQuery,
+            deleteCategoriesQuery,
+            deleteProductQuery,
+        ]);
     }
 
-    private productMapper(
-        product: Product,
-        ingredients: { ingredient: Ingredient }[],
-        categories: { category: Category }[],
-    ) {
+    private productMapper(product: Product) {
         const mappedProduct = {
             ...product,
-            ingredients: ingredients.map((ingredient) => ({
+            ingredients: product['ingredients'].map((ingredient) => ({
                 ...ingredient.ingredient,
             })),
-            categories: categories.map((category) => ({
+            categories: product['categories'].map((category) => ({
                 ...category.category,
             })),
         };
