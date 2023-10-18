@@ -33,6 +33,7 @@ export class ProductsService {
         const product = await this.productsRepository.create({
             name,
             description,
+            imageId: imagekitResponse.fileId,
             imageUrl: imagekitResponse.url,
             categoryIds,
             ingredientIds,
@@ -63,6 +64,7 @@ export class ProductsService {
             throw new NotFoundException('Product not found.');
         }
 
+        await imagekit.deleteFile(product.imageId);
         await this.productsRepository.remove(id);
 
         return null;

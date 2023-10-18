@@ -13,6 +13,7 @@ export class ProductsRepository {
         const data = {
             name: createProductDto.name,
             description: createProductDto.description,
+            imageId: createProductDto.imageId,
             imageUrl: createProductDto.imageUrl,
         };
 

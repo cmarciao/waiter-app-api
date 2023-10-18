@@ -14,6 +14,9 @@ export class CreateProductDto {
     image?: Express.Multer.File;
 
     @IsOptional()
+    imageId?: string;
+
+    @IsOptional()
     imageUrl?: string;
 
     @IsString()

@@ -48,6 +48,7 @@ model Product {
     id          String @id @default(uuid()) @db.Uuid
     name        String @unique
     description String
+    imageId     String @unique
     imageUrl    String
 
     categories  ProductToCategories[]
