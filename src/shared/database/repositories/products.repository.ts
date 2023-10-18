@@ -56,6 +56,33 @@ export class ProductsRepository {
         return product;
     }
 
+    async findAll() {
+        const response = await this.prismaService.product.findMany({
+            include: {
+                ingredients: {
+                    select: {
+                        ingredient: true,
+                    },
+                },
+                categories: {
+                    select: {
+                        category: true,
+                    },
+                },
+            },
+        });
+
+        const products = response.map((product) =>
+            this.productMapper(
+                product,
+                product.ingredients,
+                product.categories,
+            ),
+        );
+
+        return products;
+    }
+
     async findById(id: string) {
         const productFound = await this.prismaService.product.findUnique({
             where: {

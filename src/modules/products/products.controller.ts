@@ -24,6 +24,11 @@ import { CreateProductPipe } from 'src/shared/pipes/create-product.pipe';
 export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
 
+    @Get()
+    findAll() {
+        return this.productsService.findAll();
+    }
+
     @Get(':id')
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
