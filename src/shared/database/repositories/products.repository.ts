@@ -9,14 +9,14 @@ export class ProductsRepository {
     constructor(private readonly prismaService: PrismaService) {}
 
     async create(createProductDto: CreateProductDto) {
-        const { categorieIds, ingredientIds } = createProductDto;
+        const { categoryIds, ingredientIds } = createProductDto;
         const data = {
             name: createProductDto.name,
             description: createProductDto.description,
             imageUrl: createProductDto.imageUrl,
         };
 
-        const categories = categorieIds.map((category) => ({
+        const categories = categoryIds.map((category) => ({
             categoryId: category,
         }));
         const ingredients = ingredientIds.map((ingredient) => ({

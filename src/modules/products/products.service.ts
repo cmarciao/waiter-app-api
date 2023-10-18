@@ -6,6 +6,7 @@ import {
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductsRepository } from 'src/shared/database/repositories/products.repository';
+import { imagekit } from 'src/shared/services/imagekit.config';
 
 @Injectable()
 export class ProductsService {
@@ -14,8 +15,8 @@ export class ProductsService {
     async create({
         name,
         description,
-        imageUrl,
-        categorieIds,
+        image,
+        categoryIds,
         ingredientIds,
     }: CreateProductDto) {
         const productFound = await this.productsRepository.findByName(name);
@@ -24,11 +25,16 @@ export class ProductsService {
             throw new ConflictException('This product already exists.');
         }
 
+        const imagekitResponse = await imagekit.upload({
+            fileName: image.originalname,
+            file: image.buffer,
+        });
+
         const product = await this.productsRepository.create({
             name,
             description,
-            imageUrl,
-            categorieIds,
+            imageUrl: imagekitResponse.url,
+            categoryIds,
             ingredientIds,
         });
 

@@ -1,7 +1,5 @@
 /* eslint-disable indent */
-import { Type } from 'class-transformer';
-
-import { IsArray, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
     @IsString()
@@ -12,18 +10,17 @@ export class CreateProductDto {
     @IsNotEmpty()
     description: string;
 
+    @IsOptional()
+    image?: Express.Multer.File;
+
+    @IsOptional()
+    imageUrl?: string;
+
     @IsString()
-    @IsUrl()
     @IsNotEmpty()
-    imageUrl: string;
+    categoryIds: string[];
 
-    @IsArray()
+    @IsString()
     @IsNotEmpty()
-    @Type(() => String)
-    categorieIds: string[];
-
-    @IsArray()
-    @IsNotEmpty()
-    @Type(() => String)
     ingredientIds: string[];
 }
