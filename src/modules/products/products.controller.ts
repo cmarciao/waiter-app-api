@@ -36,6 +36,11 @@ export class ProductsController {
         return this.productsService.findOne(id);
     }
 
+    @Get('category/:id')
+    findByCategory(@Param('id') id: string) {
+        return this.productsService.findByCategory(id);
+    }
+
     @Post()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
