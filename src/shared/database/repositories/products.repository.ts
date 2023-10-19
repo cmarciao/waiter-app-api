@@ -14,6 +14,7 @@ export class ProductsRepository {
         const data = {
             name: createProductDto.name,
             description: createProductDto.description,
+            price: createProductDto.price,
             imageId: createProductDto.imageId,
             imageUrl: createProductDto.imageUrl,
         };
@@ -224,6 +225,19 @@ export class ProductsRepository {
         const product = this.productMapper(updateProduct);
 
         return product;
+    }
+
+    async getProductPrice(id: string) {
+        const { price } = await this.prismaService.product.findUnique({
+            where: {
+                id,
+            },
+            select: {
+                price: true,
+            },
+        });
+
+        return price;
     }
 
     async remove(id: string) {

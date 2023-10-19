@@ -48,11 +48,13 @@ model Product {
     id          String @id @default(uuid()) @db.Uuid
     name        String @unique
     description String
+    price       Float
     imageId     String @unique
     imageUrl    String
 
     categories  ProductToCategories[]
     ingredients ProductToIngredients[]
+    orders      OrderToProducts[]
 
     @@map("products")
 }
@@ -77,4 +79,35 @@ model ProductToIngredients {
 
     @@id([productId, ingredientId])
     @@map("product_ingredients")
+}
+
+enum OrderState {
+    WAITING
+    PREPARING
+    FINISHED
+
+    @@map("order_state")
+}
+
+model Order {
+    id         String     @id @default(uuid()) @db.Uuid
+    table      Int
+    orderState OrderState @default(WAITING)
+    total      Float
+    createdAt  DateTime   @default(now())
+
+    products OrderToProducts[]
+
+    @@map("orders")
+}
+
+model OrderToProducts {
+    id        String @id @default(uuid()) @db.Uuid
+    orderId   String @db.Uuid
+    productId String @db.Uuid
+
+    order   Order   @relation(fields: [orderId], references: [id])
+    product Product @relation(fields: [productId], references: [id])
+
+    @@map("order_products")
 }

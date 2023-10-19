@@ -15,6 +15,7 @@ export class CreateProductPipe implements PipeTransform {
 
         const body = {
             ...value,
+            price: Number(value.price),
             ingredientIds: JSON.parse(value.ingredientIds),
             categoryIds: JSON.parse(value.categoryIds),
         };

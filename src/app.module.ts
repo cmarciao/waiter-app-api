@@ -11,9 +11,18 @@ import { DatabaseModule } from './shared/database/database.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
 import { ProductsModule } from './modules/products/products.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
-    imports: [UsersModule, DatabaseModule, AuthModule, CategoriesModule, IngredientsModule, ProductsModule],
+    imports: [
+        UsersModule,
+        DatabaseModule,
+        AuthModule,
+        CategoriesModule,
+        IngredientsModule,
+        ProductsModule,
+        OrdersModule,
+    ],
     controllers: [],
     providers: [
         {
