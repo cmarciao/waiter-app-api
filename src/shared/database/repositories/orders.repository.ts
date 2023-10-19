@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateOrderDto } from 'src/modules/orders/dto/create-order.dto';
 import { Order } from '@prisma/client';
-import { OrderState } from 'src/modules/orders/entities/enums/order-state';
+import { UpdateOrderDto } from 'src/modules/orders/dto/update-order.dto';
 
 type CreateOrderRequest = CreateOrderDto & {
     total: number;
@@ -38,6 +38,7 @@ export class OrdersRepository {
 
         return order;
     }
+
     async findAll() {
         const response = await this.prismaService.order.findMany({
             include: {
@@ -49,6 +50,46 @@ export class OrdersRepository {
             },
         });
         const orders = response.map((order) => this.orderMapper(order));
+
+        return orders;
+    }
+
+    async findById(id: string) {
+        const response = await this.prismaService.order.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                products: {
+                    select: {
+                        product: true,
+                    },
+                },
+            },
+        });
+        const orders = this.orderMapper(response);
+
+        return orders;
+    }
+
+    async update(id: string, updateOrderDto: UpdateOrderDto) {
+        const response = await this.prismaService.order.update({
+            where: {
+                id,
+            },
+            data: {
+                orderState: updateOrderDto.state,
+            },
+            include: {
+                products: {
+                    select: {
+                        product: true,
+                    },
+                },
+            },
+        });
+
+        const orders = this.orderMapper(response);
 
         return orders;
     }
