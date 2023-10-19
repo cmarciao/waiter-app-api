@@ -24,4 +24,10 @@ export class OrdersService {
             productIds,
         });
     }
+
+    async findAll() {
+        const orders = await this.ordersRepository.findAll();
+
+        return orders;
+    }
 }
