@@ -1,7 +1,8 @@
+import { Order } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from '../prisma.service';
 import { CreateOrderDto } from 'src/modules/orders/dto/create-order.dto';
-import { Order } from '@prisma/client';
 import { UpdateOrderDto } from 'src/modules/orders/dto/update-order.dto';
 
 type CreateOrderRequest = CreateOrderDto & {
@@ -67,9 +68,13 @@ export class OrdersRepository {
                 },
             },
         });
-        const orders = this.orderMapper(response);
 
-        return orders;
+        if (response) {
+            const orders = this.orderMapper(response);
+            return orders;
+        }
+
+        return response;
     }
 
     async update(id: string, updateOrderDto: UpdateOrderDto) {
@@ -92,6 +97,26 @@ export class OrdersRepository {
         const orders = this.orderMapper(response);
 
         return orders;
+    }
+
+    remove(id: string) {
+        const deleteProductsQuery =
+            this.prismaService.orderToProducts.deleteMany({
+                where: {
+                    orderId: id,
+                },
+            });
+
+        const deleteOrderQuery = this.prismaService.order.delete({
+            where: {
+                id,
+            },
+        });
+
+        return this.prismaService.$transaction([
+            deleteProductsQuery,
+            deleteOrderQuery,
+        ]);
     }
 
     private orderMapper(order: Order) {
