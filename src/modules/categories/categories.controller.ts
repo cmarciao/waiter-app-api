@@ -11,7 +11,7 @@ import {
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
-import { UserType } from '../users/entities/enums/UserType';
+import { UserType } from '../users/entities/enums/user-type';
 
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';

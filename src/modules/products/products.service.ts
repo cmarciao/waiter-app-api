@@ -16,6 +16,7 @@ export class ProductsService {
     async create({
         name,
         description,
+        price,
         image,
         categoryIds,
         ingredientIds,
@@ -34,6 +35,7 @@ export class ProductsService {
         const product = await this.productsRepository.create({
             name,
             description,
+            price,
             imageId: imagekitResponse.fileId,
             imageUrl: imagekitResponse.url,
             categoryIds,

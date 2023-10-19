@@ -10,6 +10,10 @@ export class CreateProductDto {
     @IsNotEmpty()
     description: string;
 
+    @IsString()
+    @IsNotEmpty()
+    price: number;
+
     @IsOptional()
     image?: Express.Multer.File;
 

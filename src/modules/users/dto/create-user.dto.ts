@@ -6,7 +6,7 @@ import {
     IsString,
     MinLength,
 } from 'class-validator';
-import { UserType } from '../entities/enums/UserType';
+import { UserType } from '../entities/enums/user-type';
 
 export class CreateUserDto {
     @IsString()

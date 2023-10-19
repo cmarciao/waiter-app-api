@@ -16,7 +16,7 @@ import { ProductsService } from './products.service';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 
-import { UserType } from '../users/entities/enums/UserType';
+import { UserType } from '../users/entities/enums/user-type';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductPipe } from 'src/shared/pipes/create-product.pipe';
