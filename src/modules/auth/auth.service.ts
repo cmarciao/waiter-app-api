@@ -16,13 +16,13 @@ export class AuthService {
         const user = await this.usersRepository.findByEmail(email);
 
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials.');
+            throw new UnauthorizedException('Invalid e-mail or password.');
         }
 
         const isValidPassword = await compare(password, user.password);
 
         if (!isValidPassword) {
-            throw new UnauthorizedException('Invalid credentials.');
+            throw new UnauthorizedException('Invalid e-mail or password.');
         }
 
         const accessToken = await this.jwtService.signAsync({ sub: user.id });

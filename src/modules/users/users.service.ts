@@ -77,9 +77,14 @@ export class UsersService {
             );
         }
 
+        const hashedPassword = updateUserDto.password
+            ? await hash(updateUserDto.password, 12)
+            : userFound.password;
+
         const newUser = {
             ...userFound,
             ...updateUserDto,
+            password: hashedPassword,
         };
 
         const updatedUser = await this.usersRepository.update(
