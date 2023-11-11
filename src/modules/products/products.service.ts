@@ -1,6 +1,7 @@
 import {
     ConflictException,
     Injectable,
+    InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
 import { imagekit } from 'src/shared/services/imagekit.config';
@@ -18,7 +19,7 @@ export class ProductsService {
         description,
         price,
         image,
-        categoryIds,
+        categoryId,
         ingredientIds,
     }: CreateProductDto) {
         const productFound = await this.productsRepository.findByName(name);
@@ -27,22 +28,34 @@ export class ProductsService {
             throw new ConflictException('This product already exists.');
         }
 
-        const imagekitResponse = await imagekit.upload({
-            fileName: image.originalname,
-            file: image.buffer,
-        });
+        let imageId: string;
 
-        const product = await this.productsRepository.create({
-            name,
-            description,
-            price,
-            imageId: imagekitResponse.fileId,
-            imageUrl: imagekitResponse.url,
-            categoryIds,
-            ingredientIds,
-        });
+        try {
+            const imagekitResponse = await imagekit.upload({
+                fileName: image.originalname,
+                file: image.buffer,
+            });
 
-        return product;
+            imageId = imagekitResponse.fileId;
+
+            const product = await this.productsRepository.create({
+                name,
+                description,
+                price,
+                imageId,
+                imageUrl: imagekitResponse.url,
+                categoryId,
+                ingredientIds,
+            });
+
+            return product;
+        } catch (err) {
+            console.log(err);
+
+            await imagekit.deleteFile(imageId);
+
+            throw new InternalServerErrorException();
+        }
     }
 
     async findAll() {
@@ -73,11 +86,8 @@ export class ProductsService {
         }
 
         if (updateProductDto?.image?.originalname) {
-            return await this.updateWithImageKit(
-                id,
-                product.imageId,
-                updateProductDto,
-            );
+            const imageId = await this.productsRepository.getImageId(id);
+            return await this.updateWithImageKit(id, imageId, updateProductDto);
         }
 
         return this.updateWithoutImageKit(id, updateProductDto);
@@ -120,7 +130,9 @@ export class ProductsService {
             throw new NotFoundException('Product not found.');
         }
 
-        await imagekit.deleteFile(product.imageId);
+        const imageId = await this.productsRepository.getImageId(id);
+
+        await imagekit.deleteFile(imageId);
         await this.productsRepository.remove(id);
 
         return null;
