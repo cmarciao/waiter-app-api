@@ -3,6 +3,8 @@ import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 @Injectable()
 export class CreateProductPipe implements PipeTransform {
     transform(value: any) {
+        if (!value) return;
+
         if (value?.mimetype) {
             if (!value?.mimetype.includes('image')) {
                 throw new BadRequestException(
@@ -13,11 +15,12 @@ export class CreateProductPipe implements PipeTransform {
             return value;
         }
 
+        const obj = Object.assign({}, value);
+
         const body = {
-            ...value,
-            price: Number(value.price),
-            ingredientIds: JSON.parse(value.ingredientIds),
-            categoryIds: JSON.parse(value.categoryIds),
+            ...obj,
+            price: Number(obj?.price),
+            ingredientIds: JSON.parse(obj?.ingredientIds),
         };
 
         return body;
