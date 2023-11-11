@@ -9,42 +9,32 @@ import { UpdateProductDto } from 'src/modules/products/dto/update-product.dto';
 export class ProductsRepository {
     constructor(private readonly prismaService: PrismaService) {}
 
-    async create(createProductDto: CreateProductDto) {
-        const { categoryIds, ingredientIds } = createProductDto;
-        const data = {
-            name: createProductDto.name,
-            description: createProductDto.description,
-            price: createProductDto.price,
-            imageId: createProductDto.imageId,
-            imageUrl: createProductDto.imageUrl,
-        };
+    async create(createProductDto: Required<Omit<CreateProductDto, 'image'>>) {
+        const { ingredientIds, ...productDto } = createProductDto;
 
-        const categories = categoryIds.map((category) => ({
-            categoryId: category,
-        }));
         const ingredients = ingredientIds.map((ingredient) => ({
             ingredientId: ingredient,
         }));
 
         const response = await this.prismaService.product.create({
             data: {
-                ...data,
-                categories: {
-                    create: categories,
-                },
+                ...productDto,
                 ingredients: {
                     create: ingredients,
                 },
             },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                imageId: false,
+                imageUrl: true,
+                price: true,
+                categoryId: false,
+                category: true,
                 ingredients: {
                     select: {
                         ingredient: true,
-                    },
-                },
-                categories: {
-                    select: {
-                        category: true,
                     },
                 },
             },
@@ -57,15 +47,18 @@ export class ProductsRepository {
 
     async findAll() {
         const response = await this.prismaService.product.findMany({
-            include: {
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                imageId: false,
+                imageUrl: true,
+                price: true,
+                categoryId: false,
+                category: true,
                 ingredients: {
                     select: {
                         ingredient: true,
-                    },
-                },
-                categories: {
-                    select: {
-                        category: true,
                     },
                 },
             },
@@ -79,21 +72,20 @@ export class ProductsRepository {
     async findByCategory(id: string) {
         const response = await this.prismaService.product.findMany({
             where: {
-                categories: {
-                    some: {
-                        categoryId: id,
-                    },
-                },
+                categoryId: id,
             },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                imageId: false,
+                imageUrl: true,
+                price: true,
+                categoryId: false,
+                category: true,
                 ingredients: {
-                    include: {
+                    select: {
                         ingredient: true,
-                    },
-                },
-                categories: {
-                    include: {
-                        category: true,
                     },
                 },
             },
@@ -108,15 +100,18 @@ export class ProductsRepository {
             where: {
                 id,
             },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                imageId: false,
+                imageUrl: true,
+                price: true,
+                categoryId: false,
+                category: true,
                 ingredients: {
                     select: {
                         ingredient: true,
-                    },
-                },
-                categories: {
-                    select: {
-                        category: true,
                     },
                 },
             },
@@ -141,11 +136,8 @@ export class ProductsRepository {
 
     async update(
         id: string,
-        { ingredientIds, categoryIds, ...productToUpdate }: UpdateProductDto,
+        { ingredientIds, ...productToUpdate }: UpdateProductDto,
     ) {
-        const categories = categoryIds?.map((category) => ({
-            categoryId: category,
-        }));
         const ingredients = ingredientIds?.map((ingredient) => ({
             ingredientId: ingredient,
         }));
@@ -174,28 +166,6 @@ export class ProductsRepository {
             }
         }
 
-        if (categories) {
-            const deleteAllCategories =
-                this.prismaService.productToCategories.deleteMany({
-                    where: {
-                        productId: id,
-                    },
-                });
-
-            queriesList.push(deleteAllCategories);
-
-            for (const categoryId of categoryIds) {
-                const query = this.prismaService.productToCategories.create({
-                    data: {
-                        productId: id,
-                        categoryId,
-                    },
-                });
-
-                queriesList.push(query);
-            }
-        }
-
         const updateProductQuery = this.prismaService.product.update({
             where: {
                 id,
@@ -209,11 +179,6 @@ export class ProductsRepository {
                         ingredient: true,
                     },
                 },
-                categories: {
-                    select: {
-                        category: true,
-                    },
-                },
             },
         });
 
@@ -225,6 +190,19 @@ export class ProductsRepository {
         const product = this.productMapper(updateProduct);
 
         return product;
+    }
+
+    async getImageId(id: string) {
+        const { imageId } = await this.prismaService.product.findUnique({
+            where: {
+                id,
+            },
+            select: {
+                imageId: true,
+            },
+        });
+
+        return imageId;
     }
 
     async getProductPrice(id: string) {
@@ -248,13 +226,6 @@ export class ProductsRepository {
                 },
             });
 
-        const deleteCategoriesQuery =
-            this.prismaService.productToCategories.deleteMany({
-                where: {
-                    productId: id,
-                },
-            });
-
         const deleteProductQuery = this.prismaService.product.delete({
             where: {
                 id,
@@ -263,19 +234,15 @@ export class ProductsRepository {
 
         return this.prismaService.$transaction([
             deleteIngredientsQuery,
-            deleteCategoriesQuery,
             deleteProductQuery,
         ]);
     }
 
-    private productMapper(product: Product) {
+    private productMapper(product: Omit<Product, 'categoryId' | 'imageId'>) {
         const mappedProduct = {
             ...product,
             ingredients: product['ingredients'].map((ingredient) => ({
                 ...ingredient.ingredient,
-            })),
-            categories: product['categories'].map((category) => ({
-                ...category.category,
             })),
         };
 
