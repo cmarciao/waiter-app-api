@@ -1,4 +1,11 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    UseGuards,
+} from '@nestjs/common';
 
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { UserType } from '../users/entities/enums/user-type';
@@ -22,5 +29,12 @@ export class HistoricController {
     @Roles(UserType.ADMIN)
     create() {
         return this.historicService.create();
+    }
+
+    @Delete(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    remove(@Param('id') id: string) {
+        return this.historicService.remove(id);
     }
 }
