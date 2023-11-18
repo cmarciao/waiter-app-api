@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateOrderDto } from 'src/modules/orders/dto/create-order.dto';
 import { UpdateOrderDto } from 'src/modules/orders/dto/update-order.dto';
+import { OrderState } from 'src/modules/orders/entities/enums/order-state';
 
 type CreateOrderRequest = CreateOrderDto & {
     total: number;
@@ -75,6 +76,25 @@ export class OrdersRepository {
         }
 
         return response;
+    }
+
+    async findByState(state: OrderState) {
+        const response = await this.prismaService.order.findMany({
+            where: {
+                orderState: state,
+            },
+            include: {
+                products: {
+                    select: {
+                        product: true,
+                    },
+                },
+            },
+        });
+
+        const orders = response.map((order) => this.orderMapper(order));
+
+        return orders;
     }
 
     updateOrdersToHistoricState() {
