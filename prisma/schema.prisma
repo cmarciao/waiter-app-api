@@ -76,6 +76,7 @@ enum OrderState {
     WAITING
     PREPARING
     FINISHED
+    HISTORIC
 
     @@map("order_state")
 }
