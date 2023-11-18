@@ -77,6 +77,14 @@ export class OrdersRepository {
         return response;
     }
 
+    updateOrdersToHistoricState() {
+        return this.prismaService.order.updateMany({
+            data: {
+                orderState: 'HISTORIC',
+            },
+        });
+    }
+
     async update(id: string, updateOrderDto: UpdateOrderDto) {
         const response = await this.prismaService.order.update({
             where: {

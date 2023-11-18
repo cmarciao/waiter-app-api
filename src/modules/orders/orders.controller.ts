@@ -22,7 +22,7 @@ import { UserType } from '../users/entities/enums/user-type';
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
 
-    @Get(':state')
+    @Get()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
     findAll() {
