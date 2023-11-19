@@ -4,6 +4,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 
+import { SortOrder } from './entities/enums/sort-order';
 import { OrderState } from '../orders/entities/enums/order-state';
 import { OrdersRepository } from 'src/shared/database/repositories/orders.repository';
 
@@ -11,8 +12,8 @@ import { OrdersRepository } from 'src/shared/database/repositories/orders.reposi
 export class HistoricService {
     constructor(private readonly ordersRepository: OrdersRepository) {}
 
-    findAll() {
-        return this.ordersRepository.findByState(OrderState.HISTORIC);
+    findAll(orderBy: SortOrder) {
+        return this.ordersRepository.findByState(OrderState.HISTORIC, orderBy);
     }
 
     create() {

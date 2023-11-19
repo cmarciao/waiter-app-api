@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma.service';
 import { CreateOrderDto } from 'src/modules/orders/dto/create-order.dto';
 import { UpdateOrderDto } from 'src/modules/orders/dto/update-order.dto';
 import { OrderState } from 'src/modules/orders/entities/enums/order-state';
+import { SortOrder } from 'src/modules/historic/entities/enums/sort-order';
 
 type CreateOrderRequest = CreateOrderDto & {
     total: number;
@@ -78,15 +79,22 @@ export class OrdersRepository {
         return response;
     }
 
-    async findByState(state: OrderState) {
+    async findByState(state: OrderState, orderBy = SortOrder.DESC) {
         const response = await this.prismaService.order.findMany({
             where: {
                 orderState: state,
             },
+            orderBy: {
+                createdAt: orderBy,
+            },
             include: {
                 products: {
                     select: {
-                        product: true,
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
                     },
                 },
             },
@@ -101,6 +109,11 @@ export class OrdersRepository {
         return this.prismaService.order.updateMany({
             data: {
                 orderState: 'HISTORIC',
+            },
+            where: {
+                orderState: {
+                    not: 'HISTORIC',
+                },
             },
         });
     }
@@ -148,13 +161,45 @@ export class OrdersRepository {
     }
 
     private orderMapper(order: Order) {
+        const oldProducts = order['products'];
         const mappedOrder = {
             ...order,
-            products: order['products'].map((order) => ({
+            products: oldProducts.map((order) => ({
                 ...order.product,
             })),
         };
 
-        return mappedOrder;
+        const products = mappedOrder['products'];
+        const newProducts = [];
+
+        for (let i = 0; i < products.length; i++) {
+            const currentProduct = products[i];
+            if (
+                newProducts.filter((item) => item.id === currentProduct.id)
+                    .length > 0
+            ) {
+                continue;
+            }
+
+            let count = 0;
+
+            for (const product of products) {
+                if (product.id === currentProduct.id) {
+                    count++;
+                }
+            }
+
+            newProducts.push({
+                ...currentProduct,
+                count,
+            });
+        }
+
+        const finalOrder = {
+            ...order,
+            products: newProducts,
+        };
+
+        return finalOrder;
     }
 }

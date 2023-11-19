@@ -4,6 +4,7 @@ import {
     Get,
     Param,
     Post,
+    Query,
     UseGuards,
 } from '@nestjs/common';
 
@@ -11,6 +12,7 @@ import { Roles } from 'src/shared/decorators/roles.decorator';
 import { UserType } from '../users/entities/enums/user-type';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 
+import { SortOrder } from './entities/enums/sort-order';
 import { HistoricService } from './historic.service';
 
 @Controller('historic')
@@ -20,8 +22,8 @@ export class HistoricController {
     @Get()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
-    findAll() {
-        return this.historicService.findAll();
+    findAll(@Query('orderBy') orderBy = SortOrder.DESC) {
+        return this.historicService.findAll(orderBy);
     }
 
     @Post()
