@@ -171,6 +171,7 @@ export class OrdersRepository {
 
         const products = mappedOrder['products'];
         const newProducts = [];
+        const totalProducts = products.length;
 
         for (let i = 0; i < products.length; i++) {
             const currentProduct = products[i];
@@ -198,6 +199,7 @@ export class OrdersRepository {
         const finalOrder = {
             ...order,
             products: newProducts,
+            totalProducts,
         };
 
         return finalOrder;
