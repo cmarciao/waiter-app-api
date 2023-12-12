@@ -29,6 +29,13 @@ export class OrdersController {
         return this.ordersService.findAll();
     }
 
+    @Get(':id')
+    @UseGuards(RoleGuard)
+    @Roles(UserType.ADMIN)
+    findOne(@Param('id') id: string) {
+        return this.ordersService.findOne(id);
+    }
+
     @Post()
     create(@Body() createOrderDto: CreateOrderDto) {
         return this.ordersService.create(createOrderDto);

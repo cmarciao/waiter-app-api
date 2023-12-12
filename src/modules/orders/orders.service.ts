@@ -33,6 +33,16 @@ export class OrdersService {
         return orders;
     }
 
+    async findOne(id: string) {
+        const orderFound = await this.ordersRepository.findById(id);
+
+        if (!orderFound) {
+            throw new NotFoundException('Order not found.');
+        }
+
+        return orderFound;
+    }
+
     async update(id: string, updateOrderDto: UpdateOrderDto) {
         const orderFound = await this.ordersRepository.findById(id);
 
