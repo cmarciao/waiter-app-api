@@ -1,7 +1,7 @@
 import {
-    BadRequestException,
     Injectable,
     NotFoundException,
+    BadRequestException,
 } from '@nestjs/common';
 
 import { SortOrder } from './entities/enums/sort-order';
@@ -16,7 +16,13 @@ export class HistoricService {
         return this.ordersRepository.findByState(OrderState.HISTORIC, orderBy);
     }
 
-    create() {
+    async create() {
+        const hasOrders = await this.ordersRepository.findActiveOrders();
+
+        if (hasOrders.length === 0) {
+            throw new BadRequestException('There are no orders to be updated.');
+        }
+
         return this.ordersRepository.updateOrdersToHistoricState();
     }
 

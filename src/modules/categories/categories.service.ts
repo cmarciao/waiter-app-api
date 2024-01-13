@@ -31,6 +31,16 @@ export class CategoriesService {
         return categories;
     }
 
+    async findOne(id: string) {
+        const category = await this.categoriesRepository.findById(id);
+
+        if (!category) {
+            throw new ConflictException('Category not found.');
+        }
+
+        return category;
+    }
+
     async update(id: string, updateCategoryDto: UpdateCategoryDto) {
         const categoryFound = await this.categoriesRepository.findById(id);
 

@@ -105,6 +105,31 @@ export class OrdersRepository {
         return orders;
     }
 
+    async findActiveOrders() {
+        const response = await this.prismaService.order.findMany({
+            where: {
+                orderState: {
+                    not: 'HISTORIC',
+                },
+            },
+            include: {
+                products: {
+                    select: {
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        const orders = response.map((order) => this.orderMapper(order));
+
+        return orders;
+    }
+
     updateOrdersToHistoricState() {
         return this.prismaService.order.updateMany({
             data: {
