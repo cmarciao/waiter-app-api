@@ -2,7 +2,7 @@ import {
     CanActivate,
     ExecutionContext,
     Injectable,
-    NotFoundException,
+    // NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -10,14 +10,12 @@ import { JwtService } from '@nestjs/jwt';
 
 import { env } from 'src/shared/config/env';
 import { IS_PUBLIC_KEY } from 'src/shared/decorators/is-public.decorator';
-import { UsersRepository } from '../database/repositories/users.repository';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
         private readonly reflactor: Reflector,
         private readonly jwtService: JwtService,
-        private readonly usersRepository: UsersRepository,
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -42,13 +40,7 @@ export class AuthGuard implements CanActivate {
                 secret: env.jwtSecret,
             });
 
-            const user = await this.usersRepository.findById(payload.sub);
-
-            if (!user) {
-                throw new NotFoundException('User session not found.');
-            }
-
-            request['user'] = user;
+            request['token'] = payload;
         } catch {
             throw new UnauthorizedException('Error in authorization checking.');
         }

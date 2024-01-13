@@ -12,7 +12,7 @@ export class AuthService {
         private readonly usersRepository: UsersRepository,
     ) {}
 
-    async signIn({ email, password }: SignInDto) {
+    async signIn({ email, password }: SignInDto, isLoginFromMobile: boolean) {
         const user = await this.usersRepository.findByEmail(email);
 
         if (!user) {
@@ -25,7 +25,18 @@ export class AuthService {
             throw new UnauthorizedException('Invalid e-mail or password.');
         }
 
-        const accessToken = await this.jwtService.signAsync({ sub: user.id });
+        if (!isLoginFromMobile) {
+            if (user.type !== 'ADMIN') {
+                throw new UnauthorizedException(
+                    'You do not have permission to log in dashboard.',
+                );
+            }
+        }
+
+        const accessToken = await this.jwtService.signAsync({
+            sub: user.id,
+            type: user.type,
+        });
 
         return { accessToken };
     }

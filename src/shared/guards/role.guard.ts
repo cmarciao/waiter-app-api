@@ -14,6 +14,20 @@ export class RoleGuard implements CanActivate {
     constructor(private readonly reflector: Reflector) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        const { token, headers } = context.switchToHttp().getRequest();
+        const userAgent = headers['user-agent'];
+
+        const isMobile =
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                userAgent,
+            );
+
+        if (!isMobile) {
+            if (token.type !== 'ADMIN') {
+                throw new UnauthorizedException('You do not have permission.');
+            }
+        }
+
         const requiredRoles = this.reflector.getAllAndOverride<UserType[]>(
             ROLES_KEY,
             [context.getClass(), context.getHandler()],
@@ -23,9 +37,8 @@ export class RoleGuard implements CanActivate {
             return true;
         }
 
-        const { user } = context.switchToHttp().getRequest();
         const filteredRoles = requiredRoles.filter(
-            (role) => role === user.type,
+            (role) => role === token.type,
         );
 
         if (filteredRoles.length === 0) {
