@@ -103,3 +103,9 @@ model OrderToProducts {
 
     @@map("order_products")
 }
+
+model RefreshToken {
+    token String @id
+
+    @@map("refresh_tokens")
+}
