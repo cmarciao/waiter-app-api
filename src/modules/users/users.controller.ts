@@ -17,6 +17,7 @@ import { User } from 'src/shared/decorators/user.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { IsPublic } from 'src/shared/decorators/is-public.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -37,8 +38,9 @@ export class UsersController {
     }
 
     @Post()
-    @UseGuards(RoleGuard)
-    @Roles(UserType.ADMIN)
+    // @UseGuards(RoleGuard)
+    // @Roles(UserType.ADMIN)
+    @IsPublic()
     create(@Body() createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
     }

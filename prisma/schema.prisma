@@ -21,6 +21,8 @@ model User {
     password String
     type     UserType
 
+    refreshTokens RefreshToken[]
+
     @@map("users")
 }
 
@@ -105,7 +107,12 @@ model OrderToProducts {
 }
 
 model RefreshToken {
-    token String @id
+    id        String   @id @default(uuid())
+    userId    String   @db.Uuid
+    issuedAt  DateTime @default(now())
+    expiresAt DateTime
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("refresh_tokens")
 }
