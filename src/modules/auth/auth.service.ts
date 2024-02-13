@@ -83,7 +83,7 @@ export class AuthService {
 
     private generateAccessToken(payload: object | Buffer) {
         return this.jwtService.signAsync(payload, {
-            expiresIn: '30s',
+            expiresIn: '7d',
         });
     }
 
