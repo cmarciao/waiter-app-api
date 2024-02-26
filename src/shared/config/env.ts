@@ -9,22 +9,22 @@ class Env {
 
     @IsString()
     @IsNotEmpty()
-    imagekitId: string;
+    amazonS3Url: string;
 
     @IsString()
     @IsNotEmpty()
-    imagekitPublicKey: string;
+    amazonS3Path: string;
 
     @IsString()
     @IsNotEmpty()
-    imagekitSecretKey: string;
+    amazonImagesBaseUrl: string;
 }
 
 export const env: Env = plainToInstance(Env, {
     jwtSecret: process.env.JWT_SECRET_KEY,
-    imagekitId: process.env.IMAGEKIT_ID,
-    imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-    imagekitSecretKey: process.env.IMAGEKIT_SECRET_KEY,
+    amazonS3Url: process.env.AMAZON_S3_URL,
+    amazonS3Path: process.env.AMAZON_S3_PATH,
+    amazonImagesBaseUrl: process.env.AMAZON_IMAGES_BASE_URL,
 });
 
 const errors = validateSync(env);
