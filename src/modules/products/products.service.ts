@@ -4,15 +4,22 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { imagekit } from 'src/shared/services/imagekit.config';
+
+import { env } from 'src/shared/config/env';
+
+import { AwsGateway } from 'src/shared/gateways/aws.gateway';
+import { ProductsRepository } from 'src/shared/database/repositories/products.repository';
 
 import { CreateProductDto } from './dto/create-product.dto';
-import { ProductsRepository } from 'src/shared/database/repositories/products.repository';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { s3Url } from 'src/shared/config/constants';
 
 @Injectable()
 export class ProductsService {
-    constructor(private readonly productsRepository: ProductsRepository) {}
+    constructor(
+        private readonly awsGateway: AwsGateway,
+        private readonly productsRepository: ProductsRepository,
+    ) {}
 
     async create({
         name,
@@ -28,22 +35,22 @@ export class ProductsService {
             throw new ConflictException('This product already exists.');
         }
 
-        let imageId: string;
+        let imageId: string = null;
 
         try {
-            const imagekitResponse = await imagekit.upload({
-                fileName: image.originalname,
-                file: image.buffer,
+            const { key } = await this.awsGateway.uploadImage({
+                buffer: image.buffer,
+                filename: image.originalname,
             });
 
-            imageId = imagekitResponse.fileId;
+            imageId = key;
 
             const product = await this.productsRepository.create({
                 name,
                 description,
                 price,
-                imageId,
-                imageUrl: imagekitResponse.url,
+                imageId: key,
+                imageUrl: `${env.amazonImagesBaseUrl}/${key}`,
                 categoryId,
                 ingredientIds,
             });
@@ -52,7 +59,9 @@ export class ProductsService {
         } catch (err) {
             console.log(err);
 
-            await imagekit.deleteFile(imageId);
+            if (imageId) {
+                await this.remove(imageId);
+            }
 
             throw new InternalServerErrorException();
         }
@@ -85,40 +94,16 @@ export class ProductsService {
             throw new NotFoundException('Product not found.');
         }
 
-        if (updateProductDto?.image?.originalname) {
-            const imageId = await this.productsRepository.getImageId(id);
-            return await this.updateWithImageKit(id, imageId, updateProductDto);
-        }
-
-        return this.updateWithoutImageKit(id, updateProductDto);
-    }
-
-    private async updateWithImageKit(
-        id: string,
-        imageId: string,
-        updateProductDto: UpdateProductDto,
-    ) {
         const { image, ...rest } = updateProductDto;
 
-        await imagekit.deleteFile(imageId);
-        const imagekitResponse = await imagekit.upload({
-            fileName: image.originalname,
-            file: image.buffer,
-        });
+        if (updateProductDto?.image?.originalname) {
+            const imageId = await this.productsRepository.getImageId(id);
 
-        return this.productsRepository.update(id, {
-            ...rest,
-            imageId: imagekitResponse.fileId,
-            imageUrl: imagekitResponse.url,
-        });
-    }
-
-    private updateWithoutImageKit(
-        id: string,
-        updateProductDto: UpdateProductDto,
-    ) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { image: _, ...rest } = updateProductDto;
+            await this.awsGateway.updateImage({
+                fileKey: imageId,
+                buffer: image.buffer,
+            });
+        }
 
         return this.productsRepository.update(id, rest);
     }
@@ -132,9 +117,10 @@ export class ProductsService {
 
         const imageId = await this.productsRepository.getImageId(id);
 
-        await imagekit.deleteFile(imageId);
-        await this.productsRepository.remove(id);
+        await fetch(`${s3Url}/${imageId}`, {
+            method: 'DELETE',
+        });
 
-        return null;
+        await this.productsRepository.remove(id);
     }
 }
