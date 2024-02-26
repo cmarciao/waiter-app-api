@@ -34,4 +34,11 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Environment Variables
 .env
+
+# Utils
+api.http
+
+# AWS
+.serverless/

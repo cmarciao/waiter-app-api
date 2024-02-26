@@ -1,0 +1,54 @@
+service: waiterapp
+frameworkVersion: '3'
+
+plugins:
+    - serverless-esbuild
+    - serverless-offline
+
+custom:
+    esbuild:
+        target: node20
+        format: esm
+        minify: true
+        outputFileExtension: .mjs
+        exclude:
+            - '@aws-sdk/*'
+
+provider:
+    name: aws
+    runtime: nodejs20.x
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action:
+                    - s3:PutObject
+                    - s3:GetObject
+                    - s3:DeleteObject
+                  Resource:
+                    !GetAtt UploadImages.Arn
+
+functions:
+    uploadImage:
+        handler: src/functions/images/upload-image.handler
+        events:
+            - httpApi:
+                path: /images
+                method: POST
+    updateImage:
+        handler: src/functions/images/update-image.handler
+        events:
+            - httpApi:
+                path: /images
+                method: PUT
+    deleteImage:
+        handler: src/functions/images/delete-image.handler
+        events:
+            - httpApi:
+                path: /images/{id}
+                method: DELETE
+
+resources:
+    Resources:
+        UploadImages:
+            Type: AWS::S3::Bucket
