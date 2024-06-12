@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Headers } from '@nestjs/common';
+import { Body, Controller, Post, Headers, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 import { SignInDto } from './dto/sign-in';
@@ -26,5 +26,12 @@ export class AuthController {
     @Post('refresh-token')
     refreshToken(@Body() refreshToken: RefreshTokenDTO) {
         return this.authService.refreshToken(refreshToken);
+    }
+
+    @Get('is-access-token-valid')
+    isAccessTokenValid() {
+        return {
+            ok: true,
+        };
     }
 }
