@@ -19,7 +19,9 @@ export class ProductsService {
     constructor(
         private readonly awsGateway: AwsGateway,
         private readonly productsRepository: ProductsRepository,
-    ) {}
+    ) {
+        /** Do nothing */
+    }
 
     async create({
         name,

@@ -9,11 +9,11 @@ class Env {
 
     @IsString()
     @IsNotEmpty()
-    amazonS3Url: string;
+    amazonApiGatewayUrl: string;
 
     @IsString()
     @IsNotEmpty()
-    amazonS3Path: string;
+    amazonApiImagesPath: string;
 
     @IsString()
     @IsNotEmpty()
@@ -22,8 +22,8 @@ class Env {
 
 export const env: Env = plainToInstance(Env, {
     jwtSecret: process.env.JWT_SECRET_KEY,
-    amazonS3Url: process.env.AMAZON_S3_URL,
-    amazonS3Path: process.env.AMAZON_S3_PATH,
+    amazonApiGatewayUrl: process.env.AMAZON_API_GATEWAY_URL,
+    amazonApiImagesPath: process.env.AMAZON_API_IMAGES_PATH,
     amazonImagesBaseUrl: process.env.AMAZON_IMAGES_BASE_URL,
 });
 
