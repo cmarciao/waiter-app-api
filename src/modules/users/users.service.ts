@@ -9,10 +9,13 @@ import { hash } from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from 'src/shared/database/repositories/users.repository';
+import { MeUpdateUserDto } from './dto/me-update.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository) {}
+    constructor(private readonly usersRepository: UsersRepository) {
+        /** Do nothing */
+    }
 
     async create({ name, email, password, type }: CreateUserDto) {
         const emailFound = await this.usersRepository.findByEmail(email);
@@ -102,6 +105,33 @@ export class UsersService {
             name: updatedUser.name,
             emai: updatedUser.email,
             type: updatedUser.type,
+        };
+    }
+
+    async meUpdate(id: string, meUpdateUserDto: MeUpdateUserDto) {
+        const userFound = await this.usersRepository.findByEmail(
+            meUpdateUserDto.email,
+        );
+
+        if (!userFound) {
+            throw new NotFoundException('User not found.');
+        }
+
+        const hashedPassword = meUpdateUserDto.password
+            ? await hash(meUpdateUserDto.password, 12)
+            : userFound.password;
+
+        const newUser = {
+            ...userFound,
+            ...meUpdateUserDto,
+            password: hashedPassword,
+        };
+
+        const updatedUser = await this.usersRepository.update(id, newUser);
+
+        return {
+            name: updatedUser.name,
+            emai: updatedUser.email,
         };
     }
 

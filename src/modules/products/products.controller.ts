@@ -25,7 +25,9 @@ import { UpdateProductPipe } from 'src/shared/pipes/update-product.pipe';
 
 @Controller('products')
 export class ProductsController {
-    constructor(private readonly productsService: ProductsService) {}
+    constructor(private readonly productsService: ProductsService) {
+        /** Do nothing */
+    }
 
     @Get()
     findAll() {
@@ -33,8 +35,6 @@ export class ProductsController {
     }
 
     @Get(':id')
-    @UseGuards(RoleGuard)
-    @Roles(UserType.ADMIN)
     findOne(@Param('id') id: string) {
         return this.productsService.findOne(id);
     }

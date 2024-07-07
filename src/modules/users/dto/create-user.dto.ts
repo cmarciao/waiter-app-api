@@ -13,7 +13,7 @@ export class CreateUserDto {
     @ApiProperty({
         name: 'name',
         description: 'Name of the user to create account.',
-        example: 'Mocked Name'
+        example: 'Mocked Name',
     })
     @IsString()
     @IsNotEmpty()
@@ -22,7 +22,7 @@ export class CreateUserDto {
     @ApiProperty({
         name: 'email',
         description: 'Email of the user to create account.',
-        example: 'mocked.user@email.com'
+        example: 'mocked.user@email.com',
     })
     @IsString()
     @IsEmail()
@@ -31,8 +31,9 @@ export class CreateUserDto {
 
     @ApiProperty({
         name: 'password',
-        description: 'Password of the user to create account, must be equal to or longer than 8 characters.',
-        example: '123456789'
+        description:
+            'Password of the user to create account, must be equal to or longer than 8 characters.',
+        example: '123456789',
     })
     @IsString()
     @MinLength(8)
@@ -41,10 +42,11 @@ export class CreateUserDto {
 
     @ApiProperty({
         name: 'type',
-        description: 'Type of the user to create account, the user can be a USER or an ADMIN.',
+        description:
+            'Type of the user to create account, the user can be a USER or an ADMIN.',
         default: 'USER',
         enum: ['USER', 'ADMIN'],
-        example: 'USER'
+        example: 'USER',
     })
     @IsNotEmpty()
     @IsEnum(UserType)

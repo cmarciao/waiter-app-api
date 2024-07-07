@@ -13,9 +13,14 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly usersRepository: UsersRepository,
         private readonly refreshTokenRepository: RefreshTokenRepository,
-    ) {}
+    ) {
+        /** Do nothing */
+    }
 
-    async signIn({ email, password }: SignInDto, isLoginFromWeb: boolean) {
+    async signIn(
+        { email, password }: SignInDto,
+        // isLoginFromWeb: boolean
+    ) {
         const user = await this.usersRepository.findByEmail(email);
 
         if (!user) {
@@ -28,13 +33,13 @@ export class AuthService {
             throw new UnauthorizedException('Invalid e-mail or password.');
         }
 
-        if (isLoginFromWeb) {
-            if (user.type !== 'ADMIN') {
-                throw new UnauthorizedException(
-                    'You do not have permission to log in dashboard.',
-                );
-            }
-        }
+        // if (isLoginFromWeb) {
+        //     if (user.type !== 'ADMIN') {
+        //         throw new UnauthorizedException(
+        //             'You do not have permission to log in dashboard.',
+        //         );
+        //     }
+        // }
 
         const accessToken = await this.generateAccessToken({
             sub: user.id,

@@ -9,19 +9,21 @@ import { RefreshTokenDTO } from './dto/refresh-token';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {
+        /** Do nothing */
+    }
 
     @IsPublic()
     @Post('signin')
     signIn(@Headers() headers, @Body() signInDto: SignInDto) {
-        const userAgent = headers['user-agent'];
+        // const userAgent = headers['user-agent'];
 
-        const isLoginFromWeb =
-            !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-                userAgent,
-            );
+        // const isLoginFromWeb =
+        //     !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        //         userAgent,
+        //     );
 
-        return this.authService.signIn(signInDto, isLoginFromWeb);
+        return this.authService.signIn(signInDto);
     }
 
     @IsPublic()
