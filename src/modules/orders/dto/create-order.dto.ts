@@ -1,11 +1,11 @@
 /* eslint-disable indent */
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateOrderDto {
-    @IsNumber()
-    @IsInt()
-    table: number;
+    @IsString()
+    @IsNotEmpty()
+    table: string;
 
     @IsArray()
     @IsNotEmpty()

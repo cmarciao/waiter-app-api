@@ -85,7 +85,7 @@ enum OrderState {
 
 model Order {
     id         String     @id @default(uuid()) @db.Uuid
-    table      Int
+    table      String
     orderState OrderState @default(WAITING)
     total      Float
     createdAt  DateTime   @default(now())
