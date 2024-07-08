@@ -20,11 +20,11 @@ import { UserType } from '../users/entities/enums/user-type';
 
 @Controller('orders')
 export class OrdersController {
-    constructor(private readonly ordersService: OrdersService) {}
+    constructor(private readonly ordersService: OrdersService) {
+        /** Do nothing */
+    }
 
     @Get()
-    @UseGuards(RoleGuard)
-    @Roles(UserType.ADMIN)
     findAll() {
         return this.ordersService.findAll();
     }
