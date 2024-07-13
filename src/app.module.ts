@@ -13,6 +13,7 @@ import { IngredientsModule } from './modules/ingredients/ingredients.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { HistoricModule } from './modules/historic/historic.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import { HistoricModule } from './modules/historic/historic.module';
         ProductsModule,
         OrdersModule,
         HistoricModule,
+        NotificationsModule,
     ],
     controllers: [],
     providers: [

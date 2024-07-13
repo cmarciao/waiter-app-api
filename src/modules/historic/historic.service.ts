@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import {
     Injectable,
     NotFoundException,
@@ -7,23 +8,40 @@ import {
 import { SortOrder } from './entities/enums/sort-order';
 import { OrderState } from '../orders/entities/enums/order-state';
 import { OrdersRepository } from 'src/shared/database/repositories/orders.repository';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class HistoricService {
-    constructor(private readonly ordersRepository: OrdersRepository) {}
+    constructor(
+        private readonly ordersRepository: OrdersRepository,
+        private readonly notificationsService: NotificationsService,
+    ) {}
 
     findAll(orderBy: SortOrder) {
         return this.ordersRepository.findByState(OrderState.HISTORIC, orderBy);
     }
 
     async create() {
-        const hasOrders = await this.ordersRepository.findActiveOrders();
+        const hasOrders = await this.ordersRepository.findOrdersNotInHistoric();
 
         if (hasOrders.length === 0) {
             throw new BadRequestException('There are no orders to be updated.');
         }
 
-        return this.ordersRepository.updateOrdersToHistoricState();
+        const activeOrders = await this.ordersRepository.findActiveOrders();
+        const historic =
+            await this.ordersRepository.updateOrdersToHistoricState();
+
+        const notifications = activeOrders.map(({ table }) =>
+            this.notificationsService.create(['orders@update'], {
+                table: table,
+                orderState: OrderState.HISTORIC,
+            }),
+        );
+
+        Promise.all(notifications).then();
+
+        return historic;
     }
 
     async remove(id: string) {

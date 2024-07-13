@@ -7,6 +7,7 @@ import { IngredientsRepository } from './repositories/ingredients.repository';
 import { ProductsRepository } from './repositories/products.repository';
 import { OrdersRepository } from './repositories/orders.repository';
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
+import { NotificationsRepository } from './repositories/notifications.repository';
 
 @Global()
 @Module({
@@ -18,6 +19,7 @@ import { RefreshTokenRepository } from './repositories/refresh-token.repository'
         ProductsRepository,
         OrdersRepository,
         RefreshTokenRepository,
+        NotificationsRepository,
     ],
     exports: [
         UsersRepository,
@@ -26,6 +28,7 @@ import { RefreshTokenRepository } from './repositories/refresh-token.repository'
         ProductsRepository,
         OrdersRepository,
         RefreshTokenRepository,
+        NotificationsRepository,
     ],
 })
 export class DatabaseModule {}

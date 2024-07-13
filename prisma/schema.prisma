@@ -116,3 +116,13 @@ model RefreshToken {
 
     @@map("refresh_tokens")
 }
+
+model Notification {
+    id         String     @id @default(uuid())
+    table      String
+    orderState OrderState
+    read       Boolean    @default(false)
+    createdAt  DateTime   @default(now())
+
+    @@map("notifications")
+}

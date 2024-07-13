@@ -5,12 +5,15 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 import { OrdersRepository } from 'src/shared/database/repositories/orders.repository';
 import { ProductsRepository } from 'src/shared/database/repositories/products.repository';
+import { NotificationsService } from '../notifications/notifications.service';
+import { OrderState } from './entities/enums/order-state';
 
 @Injectable()
 export class OrdersService {
     constructor(
         private readonly ordersRepository: OrdersRepository,
         private readonly productsRepository: ProductsRepository,
+        private readonly notificationsService: NotificationsService,
     ) {}
 
     async create({ table, productIds }: CreateOrderDto) {
@@ -20,11 +23,20 @@ export class OrdersService {
             total += await this.productsRepository.getProductPrice(id);
         }
 
-        return this.ordersRepository.create({
+        const order = await this.ordersRepository.create({
             total,
             table,
             productIds,
         });
+
+        this.notificationsService
+            .create(['orders@new', 'orders@update'], {
+                table: order.table,
+                orderState: OrderState.WAITING,
+            })
+            .then();
+
+        return order;
     }
 
     async findAll() {
@@ -51,6 +63,11 @@ export class OrdersService {
         }
 
         const order = await this.ordersRepository.update(id, updateOrderDto);
+
+        await this.notificationsService.create(['orders@update'], {
+            table: order.table,
+            orderState: updateOrderDto.state,
+        });
 
         return order;
     }
