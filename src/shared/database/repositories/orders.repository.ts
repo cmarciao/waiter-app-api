@@ -44,6 +44,9 @@ export class OrdersRepository {
 
     async findAll() {
         const response = await this.prismaService.order.findMany({
+            orderBy: {
+                createdAt: 'desc',
+            },
             include: {
                 products: {
                     select: {
