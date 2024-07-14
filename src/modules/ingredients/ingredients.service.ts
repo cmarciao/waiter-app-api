@@ -29,8 +29,8 @@ export class IngredientsService {
         return ingredient;
     }
 
-    async findAll() {
-        const ingredients = await this.ingredientsRepository.findAll();
+    async findAll(name: string) {
+        const ingredients = await this.ingredientsRepository.findAll(name);
         return ingredients;
     }
 

@@ -12,8 +12,14 @@ export class UsersRepository {
         return this.prismaService.user.create(createUserDto);
     }
 
-    findAll() {
-        return this.prismaService.user.findMany();
+    findAll(idToExclude: string) {
+        return this.prismaService.user.findMany({
+            where: {
+                id: {
+                    not: idToExclude,
+                },
+            },
+        });
     }
 
     findById(id: string) {

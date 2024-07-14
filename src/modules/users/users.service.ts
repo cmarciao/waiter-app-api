@@ -43,8 +43,8 @@ export class UsersService {
         };
     }
 
-    async findAll() {
-        const usersList = await this.usersRepository.findAll();
+    async findAll(idToExclude: string) {
+        const usersList = await this.usersRepository.findAll(idToExclude);
         const users = usersList.map((user) => ({
             id: user.id,
             name: user.name,

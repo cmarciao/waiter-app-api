@@ -14,8 +14,15 @@ export class IngredientsRepository {
         });
     }
 
-    findAll() {
-        return this.prismaService.ingredient.findMany();
+    findAll(name: string) {
+        return this.prismaService.ingredient.findMany({
+            where: {
+                name: {
+                    contains: name.toLocaleLowerCase(),
+                    mode: 'insensitive',
+                },
+            },
+        });
     }
 
     findById(id: string) {

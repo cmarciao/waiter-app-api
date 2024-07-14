@@ -53,8 +53,9 @@ export class UsersController {
     @Get()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
-    findAll() {
-        return this.usersService.findAll();
+    findAll(@Req() request: Request) {
+        const { sub: id } = request['token'];
+        return this.usersService.findAll(id);
     }
 
     @Get(':id')

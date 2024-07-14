@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Headers, Get } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Post,
+    Headers,
+    Get,
+    BadRequestException,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 
@@ -16,14 +23,15 @@ export class AuthController {
     @IsPublic()
     @Post('signin')
     signIn(@Headers() headers, @Body() signInDto: SignInDto) {
-        // const userAgent = headers['user-agent'];
+        const userAgent = headers['user-agent'];
 
-        // const isLoginFromWeb =
-        //     !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        //         userAgent,
-        //     );
+        if (userAgent !== 'web' && userAgent !== 'mobile') {
+            throw new BadRequestException('The user agent is missing.');
+        }
 
-        return this.authService.signIn(signInDto);
+        const isLoginFromWeb = userAgent === 'web';
+
+        return this.authService.signIn(signInDto, isLoginFromWeb);
     }
 
     @IsPublic()

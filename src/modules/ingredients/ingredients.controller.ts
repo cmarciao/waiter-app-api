@@ -7,6 +7,7 @@ import {
     Param,
     Get,
     Delete,
+    Query,
 } from '@nestjs/common';
 
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -24,8 +25,8 @@ export class IngredientsController {
     @Get()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
-    findAll() {
-        return this.ingredientsService.findAll();
+    findAll(@Query('name') name: string) {
+        return this.ingredientsService.findAll(name);
     }
 
     @Get(':id')

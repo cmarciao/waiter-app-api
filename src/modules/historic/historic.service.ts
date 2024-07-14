@@ -28,18 +28,13 @@ export class HistoricService {
             throw new BadRequestException('There are no orders to be updated.');
         }
 
-        const activeOrders = await this.ordersRepository.findActiveOrders();
         const historic =
             await this.ordersRepository.updateOrdersToHistoricState();
 
-        const notifications = activeOrders.map(({ table }) =>
-            this.notificationsService.create(['orders@update'], {
-                table: table,
-                orderState: OrderState.HISTORIC,
-            }),
-        );
-
-        Promise.all(notifications).then();
+        await this.notificationsService.create(['orders@update'], {
+            table: '',
+            orderState: OrderState.HISTORIC,
+        });
 
         return historic;
     }
