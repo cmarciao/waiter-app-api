@@ -6,7 +6,7 @@ export class SignInDto {
     @ApiProperty({
         name: 'email',
         description: 'User account email.',
-        example: 'mocked.user@email.com'
+        example: 'mocked.user@email.com',
     })
     @IsString()
     @IsEmail()
@@ -15,8 +15,9 @@ export class SignInDto {
 
     @ApiProperty({
         name: 'password',
-        description: 'User account password, must be equal to or longer than 8 characters.',
-        example: '12345678'
+        description:
+            'User account password, must be equal to or longer than 8 characters.',
+        example: '12345678',
     })
     @IsString()
     @IsNotEmpty()

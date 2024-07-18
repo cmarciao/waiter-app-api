@@ -15,7 +15,6 @@ import { Request } from 'express';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { UserType } from './entities/enums/user-type';
-import { User } from 'src/shared/decorators/user.decorator';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -75,12 +74,14 @@ export class UsersController {
 
     @Put(':id')
     @UseGuards(RoleGuard)
-    @Roles(UserType.ADMIN)
+    @Roles('ADMIN')
     update(
-        @User('id') activeUserId: string,
+        @Req() request: Request,
         @Param('id') updateUserid: string,
         @Body() updateUserDto: UpdateUserDto,
     ) {
+        const { sub: activeUserId } = request['token'];
+
         return this.usersService.update(
             activeUserId,
             updateUserid,

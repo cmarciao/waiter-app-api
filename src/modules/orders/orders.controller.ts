@@ -17,7 +17,6 @@ import { Roles } from 'src/shared/decorators/roles.decorator';
 import { OrdersService } from './orders.service';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UserType } from '../users/entities/enums/user-type';
-import { IsPublic } from 'src/shared/decorators/is-public.decorator';
 
 @Controller('orders')
 export class OrdersController {
@@ -26,7 +25,6 @@ export class OrdersController {
     }
 
     @Get()
-    @IsPublic()
     findAll() {
         return this.ordersService.findAll();
     }

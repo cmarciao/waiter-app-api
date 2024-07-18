@@ -21,7 +21,8 @@ model User {
     password String
     type     UserType
 
-    refreshTokens RefreshToken[]
+    refreshTokens       RefreshToken[]
+    notificationToUsers NotificationToUsers[]
 
     @@map("users")
 }
@@ -118,11 +119,25 @@ model RefreshToken {
 }
 
 model Notification {
-    id         String     @id @default(uuid())
+    id         String     @id @default(uuid()) @db.Uuid
     table      String
     orderState OrderState
-    read       Boolean    @default(false)
     createdAt  DateTime   @default(now())
 
+    notificationToUsers NotificationToUsers[]
+
     @@map("notifications")
+}
+
+model NotificationToUsers {
+    userId         String  @db.Uuid
+    notificationId String  @db.Uuid
+    read           Boolean @default(false)
+    show           Boolean @default(true)
+
+    user         User         @relation(fields: [userId], references: [id])
+    notification Notification @relation(fields: [notificationId], references: [id])
+
+    @@id([userId, notificationId])
+    @@map("notification_users")
 }

@@ -44,9 +44,9 @@ export class CreateUserDto {
         name: 'type',
         description:
             'Type of the user to create account, the user can be a USER or an ADMIN.',
-        default: 'USER',
-        enum: ['USER', 'ADMIN'],
-        example: 'USER',
+        default: 'WAITER',
+        enum: ['WAITER', 'ADMIN'],
+        example: 'WAITER',
     })
     @IsNotEmpty()
     @IsEnum(UserType)

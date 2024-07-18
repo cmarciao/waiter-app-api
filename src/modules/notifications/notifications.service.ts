@@ -1,33 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationsRepository } from 'src/shared/database/repositories/notifications.repository';
 import { CreateNotificationDto } from './dto/create-notification-dto';
-import { NotificationsGateway } from './gateway/notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
     constructor(
         private readonly notificationsRepository: NotificationsRepository,
-        private readonly notificationsGateway: NotificationsGateway,
     ) {}
 
-    async create(
-        paths: string[],
-        createNotificationDto: CreateNotificationDto,
-    ) {
-        const notification = await this.notificationsRepository.create(
-            createNotificationDto,
-        );
-
-        paths.forEach((path) => {
-            this.notificationsGateway.handleSendNotification(
-                path,
-                notification,
-            );
-        });
+    create(createNotificationDto: CreateNotificationDto) {
+        return this.notificationsRepository.create(createNotificationDto);
     }
 
-    async findAll() {
-        const all = await this.notificationsRepository.findAll();
-        return all;
+    async hasNotifications(userId: string) {
+        const notifications =
+            await this.notificationsRepository.hasNewNotification(userId);
+
+        return {
+            hasNotifications: !!notifications,
+        };
+    }
+
+    markAsNotShow() {
+        return this.notificationsRepository.markAsNotShow();
+    }
+
+    markAsRead(userId: string) {
+        return this.notificationsRepository.markAsRead(userId);
+    }
+
+    findAll(userId: string) {
+        return this.notificationsRepository.findAll(userId);
     }
 }

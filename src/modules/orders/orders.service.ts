@@ -7,6 +7,7 @@ import { OrdersRepository } from 'src/shared/database/repositories/orders.reposi
 import { ProductsRepository } from 'src/shared/database/repositories/products.repository';
 import { NotificationsService } from '../notifications/notifications.service';
 import { OrderState } from './entities/enums/order-state';
+import { NotificationsGateway } from '../notifications/gateway/notifications.gateway';
 
 @Injectable()
 export class OrdersService {
@@ -14,6 +15,7 @@ export class OrdersService {
         private readonly ordersRepository: OrdersRepository,
         private readonly productsRepository: ProductsRepository,
         private readonly notificationsService: NotificationsService,
+        private readonly notificationsGateway: NotificationsGateway,
     ) {}
 
     async create({ table, productIds }: CreateOrderDto) {
@@ -29,12 +31,17 @@ export class OrdersService {
             productIds,
         });
 
-        this.notificationsService
-            .create(['orders@new', 'orders@update'], {
-                table: order.table,
-                orderState: OrderState.WAITING,
-            })
-            .then();
+        const notification = await this.notificationsService.create({
+            table: order.table,
+            orderState: OrderState.WAITING,
+        });
+
+        ['orders@new', 'orders@update'].forEach((path) => {
+            this.notificationsGateway.handleSendNotification(
+                path,
+                notification,
+            );
+        });
 
         return order;
     }
@@ -64,10 +71,15 @@ export class OrdersService {
 
         const order = await this.ordersRepository.update(id, updateOrderDto);
 
-        await this.notificationsService.create(['orders@update'], {
+        const notification = await this.notificationsService.create({
             table: order.table,
             orderState: updateOrderDto.state,
         });
+
+        this.notificationsGateway.handleSendNotification(
+            'orders@update',
+            notification,
+        );
 
         return order;
     }

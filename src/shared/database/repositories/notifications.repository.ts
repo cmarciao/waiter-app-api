@@ -7,39 +7,88 @@ export class NotificationsRepository {
     constructor(private readonly prismaService: PrismaService) {}
 
     async create(createNotification: CreateNotificationDto) {
-        await this.markAsRead(createNotification.table);
+        const createdNotification =
+            await this.prismaService.notification.create({
+                data: createNotification,
+            });
 
-        return this.prismaService.notification.create({
-            data: createNotification,
+        const users = await this.prismaService.user.findMany({
+            where: {
+                type: 'WAITER',
+            },
+        });
+
+        const queries = users.map((user) =>
+            this.prismaService.notificationToUsers.create({
+                data: {
+                    userId: user.id,
+                    notificationId: createdNotification.id,
+                },
+            }),
+        );
+
+        await Promise.all(queries);
+
+        return createdNotification;
+    }
+
+    markAsNotShow() {
+        return this.prismaService.notificationToUsers.updateMany({
+            data: {
+                read: true,
+                show: false,
+            },
+            where: {
+                show: true,
+            },
         });
     }
 
-    async markAsRead(table: string) {
-        const notification = await this.prismaService.notification.findFirst({
+    markAsRead(userId: string) {
+        return this.prismaService.notificationToUsers.updateMany({
+            data: {
+                read: true,
+            },
             where: {
-                table,
+                userId: userId,
                 read: false,
             },
         });
-
-        if (notification) {
-            await this.prismaService.notification.update({
-                data: {
-                    read: true,
-                },
-                where: {
-                    id: notification.id,
-                    table,
-                },
-            });
-        }
     }
 
-    findAll() {
-        return this.prismaService.notification.findMany({
-            orderBy: {
-                createdAt: 'desc',
+    hasNewNotification(userId: string) {
+        return this.prismaService.notificationToUsers.findFirst({
+            where: {
+                userId,
+                read: false,
             },
         });
+    }
+
+    async findAll(userId: string) {
+        const notifications =
+            await this.prismaService.notificationToUsers.findMany({
+                where: {
+                    userId,
+                    show: true,
+                },
+                orderBy: {
+                    notification: {
+                        createdAt: 'desc',
+                    },
+                },
+                include: {
+                    notification: true,
+                },
+            });
+
+        return notifications.map((notification) => ({
+            id: notification.notification.id,
+            table: notification.notification.table,
+            orderState: notification.notification.orderState,
+            createdAt: notification.notification.createdAt,
+            show: notification.show,
+            read: notification.read,
+        }));
     }
 }

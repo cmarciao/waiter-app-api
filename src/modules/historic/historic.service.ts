@@ -31,10 +31,7 @@ export class HistoricService {
         const historic =
             await this.ordersRepository.updateOrdersToHistoricState();
 
-        await this.notificationsService.create(['orders@update'], {
-            table: '',
-            orderState: OrderState.HISTORIC,
-        });
+        await this.notificationsService.markAsNotShow();
 
         return historic;
     }
