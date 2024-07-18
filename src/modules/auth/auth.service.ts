@@ -6,7 +6,6 @@ import { SignInDto } from './dto/sign-in';
 import { RefreshTokenDTO } from './dto/refresh-token';
 import { UsersRepository } from 'src/shared/database/repositories/users.repository';
 import { RefreshTokenRepository } from 'src/shared/database/repositories/refresh-token.repository';
-import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AuthService {
@@ -50,10 +49,6 @@ export class AuthService {
             accessToken,
             refreshToken,
         };
-    }
-
-    async signUp(signUpDto: SignUpDto) {
-        console.log(signUpDto);
     }
 
     async refreshToken({ id }: RefreshTokenDTO) {

@@ -12,7 +12,6 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in';
 import { IsPublic } from 'src/shared/decorators/is-public.decorator';
 import { RefreshTokenDTO } from './dto/refresh-token';
-import { SignUpDto } from './dto/sign-up.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -33,12 +32,6 @@ export class AuthController {
         const isLoginFromWeb = userAgent === 'web';
 
         return this.authService.signIn(signInDto, isLoginFromWeb);
-    }
-
-    @IsPublic()
-    @Post('signup')
-    signUp(@Body() signUpDto: SignUpDto) {
-        return this.authService.signUp(signUpDto);
     }
 
     @IsPublic()
