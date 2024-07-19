@@ -90,6 +90,7 @@ model Order {
     orderState OrderState @default(WAITING)
     total      Float
     createdAt  DateTime   @default(now())
+    finishedAt DateTime?  @db.Date
 
     products OrderToProducts[]
 

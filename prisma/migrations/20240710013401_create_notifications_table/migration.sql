@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "notifications" (
-    "id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
     "table" TEXT NOT NULL,
     "orderState" "order_state" NOT NULL,
     "read" BOOLEAN NOT NULL DEFAULT false,

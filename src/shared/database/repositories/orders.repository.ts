@@ -162,6 +162,7 @@ export class OrdersRepository {
         return this.prismaService.order.updateMany({
             data: {
                 orderState: 'HISTORIC',
+                finishedAt: new Date(),
             },
             where: {
                 orderState: {
