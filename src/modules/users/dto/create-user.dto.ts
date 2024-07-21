@@ -43,9 +43,9 @@ export class CreateUserDto {
     @ApiProperty({
         name: 'type',
         description:
-            'Type of the user to create account, the user can be a USER or an ADMIN.',
+            'Type of the user to create account, the user can be a WAITER or an ADMIN.',
         default: 'WAITER',
-        enum: ['WAITER', 'ADMIN'],
+        enum: UserType,
         example: 'WAITER',
     })
     @IsNotEmpty()
