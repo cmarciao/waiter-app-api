@@ -1,17 +1,17 @@
+import { Body, Controller, Post, Headers, Get } from '@nestjs/common';
 import {
-    Body,
-    Controller,
-    Post,
-    Headers,
-    Get,
-    BadRequestException,
-} from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+    ApiOkResponse,
+    ApiTags,
+    ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { IsPublic } from 'src/shared/decorators/is-public.decorator';
+import { ErrorResponse } from 'src/shared/types/ErrorResponse';
 
 import { SignInDto } from './dto/sign-in';
-import { IsPublic } from 'src/shared/decorators/is-public.decorator';
 import { RefreshTokenDTO } from './dto/refresh-token';
+import { SignResponseDto } from './dto/sign-response.dto';
+import { IsAccessTokenValidDto } from './dto/is-access-token-valid.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -20,26 +20,42 @@ export class AuthController {
         /** Do nothing */
     }
 
+    @ApiOkResponse({
+        description: 'O token de acesso e de atualização.',
+        type: SignResponseDto,
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Email ou senha inválido.',
+        type: ErrorResponse,
+    })
     @IsPublic()
     @Post('signin')
     signIn(@Headers() headers, @Body() signInDto: SignInDto) {
-        const userAgent = headers['user-agent'];
-
-        if (userAgent !== 'web' && userAgent !== 'mobile') {
-            throw new BadRequestException('The user agent is missing.');
-        }
-
-        const isLoginFromWeb = userAgent === 'web';
-
-        return this.authService.signIn(signInDto, isLoginFromWeb);
+        return this.authService.signIn(signInDto);
     }
 
+    @ApiOkResponse({
+        description: 'O token de acesso e de atualização.',
+        type: SignResponseDto,
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Token de atualização expirado.',
+        type: ErrorResponse,
+    })
     @IsPublic()
     @Post('refresh-token')
     refreshToken(@Body() refreshToken: RefreshTokenDTO) {
         return this.authService.refreshToken(refreshToken);
     }
 
+    @ApiOkResponse({
+        description: 'True se o token é válido.',
+        type: IsAccessTokenValidDto,
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Erro na verificação de autorização.',
+        type: ErrorResponse,
+    })
     @Get('is-access-token-valid')
     isAccessTokenValid() {
         return {

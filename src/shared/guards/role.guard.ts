@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     CanActivate,
     ExecutionContext,
     Injectable,
@@ -17,12 +16,7 @@ export class RoleGuard implements CanActivate {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const { token, headers } = context.switchToHttp().getRequest();
-        const userAgent = headers['user-agent'];
-
-        if (userAgent !== 'web' && userAgent !== 'mobile') {
-            throw new BadRequestException('The user agent is missing.');
-        }
+        const { token } = context.switchToHttp().getRequest();
 
         const requiredRoles = this.reflector.getAllAndOverride<UserType[]>(
             ROLES_KEY,
@@ -31,12 +25,6 @@ export class RoleGuard implements CanActivate {
 
         if (!requiredRoles) {
             return true;
-        }
-
-        const isLoginFromWeb = userAgent === 'web';
-
-        if (isLoginFromWeb && requiredRoles.includes('WAITER')) {
-            throw new UnauthorizedException('You do not have permission.');
         }
 
         const filteredRoles = requiredRoles.filter(

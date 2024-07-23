@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     ConflictException,
     Injectable,
     NotFoundException,
@@ -21,7 +20,7 @@ export class UsersService {
         const emailFound = await this.usersRepository.findByEmail(email);
 
         if (emailFound) {
-            throw new ConflictException('This email is already in use.');
+            throw new ConflictException('O email já está em uso.');
         }
 
         const hashedPassword = await hash(password, 12);
@@ -59,30 +58,17 @@ export class UsersService {
         const user = await this.usersRepository.findById(id);
 
         if (!user) {
-            throw new NotFoundException('User not found.');
+            throw new NotFoundException('Usuário não encontrado.');
         }
 
         return user;
     }
 
-    async update(
-        activeUserId: string,
-        updateUserid: string,
-        updateUserDto: UpdateUserDto,
-    ) {
+    async update(updateUserid: string, updateUserDto: UpdateUserDto) {
         const userFound = await this.usersRepository.findById(updateUserid);
 
         if (!userFound) {
-            throw new NotFoundException('User not found.');
-        }
-
-        if (
-            userFound.id === activeUserId &&
-            userFound.type !== updateUserDto.type
-        ) {
-            throw new BadRequestException(
-                'You can not change your own type user.',
-            );
+            throw new NotFoundException('Usuário não encontrado.');
         }
 
         const hashedPassword = updateUserDto.password
@@ -114,7 +100,7 @@ export class UsersService {
         );
 
         if (!userFound) {
-            throw new NotFoundException('User not found.');
+            throw new NotFoundException('Usuário não encontrado.');
         }
 
         const hashedPassword = meUpdateUserDto.password
@@ -139,7 +125,7 @@ export class UsersService {
         const userFound = await this.usersRepository.findById(id);
 
         if (!userFound) {
-            throw new NotFoundException('User not found.');
+            throw new NotFoundException('Usuário não encontrado.');
         }
 
         await this.usersRepository.remove(id);

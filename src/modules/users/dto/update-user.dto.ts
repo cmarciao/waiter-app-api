@@ -30,7 +30,7 @@ export class UpdateUserDto {
     @IsEmail()
     @IsNotEmpty()
     @IsOptional()
-    email: string;
+    email?: string;
 
     @ApiProperty({
         name: 'password',
@@ -41,7 +41,7 @@ export class UpdateUserDto {
     @IsString()
     @MinLength(8)
     @IsOptional()
-    password: string;
+    password?: string;
 
     @ApiProperty({
         name: 'type',
@@ -54,5 +54,5 @@ export class UpdateUserDto {
     @IsEnum(UserType)
     @IsNotEmpty()
     @IsOptional()
-    type: UserType;
+    type?: UserType;
 }

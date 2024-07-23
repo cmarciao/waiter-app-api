@@ -8,15 +8,18 @@ import {
     Delete,
     Get,
     Req,
+    BadRequestException,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiConflictResponse,
     ApiCreatedResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiParam,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 
@@ -40,12 +43,17 @@ export class UsersController {
     }
 
     @Get('me')
+    @ApiBearerAuth()
+    @ApiUnauthorizedResponse({
+        description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
     @ApiOkResponse({
-        description: 'Your account informations.',
+        description: 'As informações da sua conta.',
         type: MeUpdateUserDto,
     })
     @ApiNotFoundResponse({
-        description: 'The user not found.',
+        description: 'Usuário não econtraodo.',
         type: ErrorResponse,
     })
     async me(@Req() request: Request) {
@@ -59,12 +67,17 @@ export class UsersController {
     }
 
     @Put('/me')
+    @ApiBearerAuth()
+    @ApiUnauthorizedResponse({
+        description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
     @ApiOkResponse({
-        description: 'The updated informations.',
+        description: 'As informações da sua conta atualizadas.',
         type: MeUpdateUserDto,
     })
     @ApiNotFoundResponse({
-        description: 'The user not found.',
+        description: 'Usuário não econtraodo.',
         type: ErrorResponse,
     })
     async meUpdate(
@@ -72,16 +85,22 @@ export class UsersController {
         @Body() meUpdateUserDto: MeUpdateUserDto,
     ) {
         const { sub: id } = request['token'];
+
         return this.usersService.meUpdate(id, meUpdateUserDto);
     }
 
     @Get()
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
+    @ApiBearerAuth()
+    @ApiUnauthorizedResponse({
+        description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
     @ApiOkResponse({
         isArray: true,
         type: UserResponseDto,
-        description: 'List of all the users.',
+        description: 'Lista de todos os usuários.',
     })
     findAll(@Req() request: Request) {
         const { sub: id } = request['token'];
@@ -91,16 +110,21 @@ export class UsersController {
     @Get(':id')
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
+    @ApiBearerAuth()
+    @ApiUnauthorizedResponse({
+        description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
     @ApiParam({
         name: 'id',
-        description: 'The user id for find.',
+        description: 'Id do usuário que será pesquisado.',
     })
     @ApiOkResponse({
-        description: 'The user found.',
+        description: 'O usuário pesquisado.',
         type: UserResponseDto,
     })
     @ApiNotFoundResponse({
-        description: 'User not found.',
+        description: 'Usuário não encontrado',
         type: ErrorResponse,
     })
     findOne(@Param('id') id: string) {
@@ -112,11 +136,11 @@ export class UsersController {
     // @Roles(UserType.ADMIN)
     @IsPublic()
     @ApiCreatedResponse({
-        description: 'The created user is returned.',
+        description: 'O usuário criado.',
         type: UserResponseDto,
     })
     @ApiConflictResponse({
-        description: 'The user already exists.',
+        description: 'O email já está em uso.',
         type: ErrorResponse,
     })
     create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
@@ -126,20 +150,25 @@ export class UsersController {
     @Put(':id')
     @UseGuards(RoleGuard)
     @Roles('ADMIN')
+    @ApiBearerAuth()
+    @ApiUnauthorizedResponse({
+        description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
     @ApiParam({
         name: 'id',
-        description: 'User id for udpate.',
+        description: 'Id do usuário que será atualizado.',
     })
     @ApiOkResponse({
-        description: 'The updated user.',
+        description: 'O usuário atualizado.',
         type: UserResponseDto,
     })
     @ApiNotFoundResponse({
-        description: 'The user for update was not found.',
+        description: 'Usuário não encontrado.',
         type: ErrorResponse,
     })
     @ApiBadRequestResponse({
-        description: 'The user can not change your own type user.',
+        description: 'Você não pode mudar o seu próprio tipo de usuário.',
         type: ErrorResponse,
     })
     update(
@@ -147,23 +176,42 @@ export class UsersController {
         @Param('id') updateUserid: string,
         @Body() updateUserDto: UpdateUserDto,
     ) {
-        const { sub: activeUserId } = request['token'];
+        const { sub: activeUserId, ...token } = request['token'];
 
-        return this.usersService.update(
-            activeUserId,
-            updateUserid,
-            updateUserDto,
-        );
+        if (
+            activeUserId === updateUserid &&
+            updateUserDto.type &&
+            updateUserDto?.type !== token.type
+        ) {
+            throw new BadRequestException(
+                'Você não pode mudar o seu próprio tipo de usuário.',
+            );
+        }
+
+        return this.usersService.update(updateUserid, updateUserDto);
     }
 
     @Delete(':id')
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
+    @ApiBearerAuth()
+    @ApiUnauthorizedResponse({
+        description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
     @ApiParam({
         name: 'id',
-        description: 'User id for delete.',
+        description: 'Id do usuário que será deletado.',
     })
-    remove(@Param('id') id: string) {
+    remove(@Req() request: Request, @Param('id') id: string) {
+        const { sub: activeUserId } = request['token'];
+
+        if (activeUserId === id) {
+            throw new BadRequestException(
+                'Você não pode remover seu próprio usuário.',
+            );
+        }
+
         return this.usersService.remove(id);
     }
 }

@@ -15,6 +15,7 @@ async function bootstrap() {
         .setDescription('The Waiter App API')
         .setVersion('0.0.1')
         .addTag('waiter')
+        .addBearerAuth()
         .build();
 
     const document = SwaggerModule.createDocument(app, config);

@@ -17,25 +17,17 @@ export class AuthService {
         /** Do nothing */
     }
 
-    async signIn({ email, password }: SignInDto, isLoginFromWeb: boolean) {
+    async signIn({ email, password }: SignInDto) {
         const user = await this.usersRepository.findByEmail(email);
 
         if (!user) {
-            throw new UnauthorizedException('Invalid e-mail or password.');
+            throw new UnauthorizedException('Email ou senha inválido.');
         }
 
         const isValidPassword = await compare(password, user.password);
 
         if (!isValidPassword) {
-            throw new UnauthorizedException('Invalid e-mail or password.');
-        }
-
-        if (isLoginFromWeb) {
-            if (user.type !== 'ADMIN') {
-                throw new UnauthorizedException(
-                    'Você não tem permissão para acesso.',
-                );
-            }
+            throw new UnauthorizedException('Email ou senha inválido.');
         }
 
         const accessToken = await this.generateAccessToken({
@@ -55,13 +47,13 @@ export class AuthService {
         const refreshToken = await this.refreshTokenRepository.find(id);
 
         if (!refreshToken) {
-            throw new UnauthorizedException('Expired token');
+            throw new UnauthorizedException('Token de atualização expirado.');
         }
 
         if (Date.now() > refreshToken.expiresAt.getTime()) {
             await this.refreshTokenRepository.remove(id);
 
-            throw new UnauthorizedException('Expired token');
+            throw new UnauthorizedException('Token de atualização expirado.');
         }
 
         const user = await this.usersRepository.findById(refreshToken.userId);

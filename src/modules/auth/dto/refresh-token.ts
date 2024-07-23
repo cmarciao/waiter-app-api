@@ -6,7 +6,7 @@ export class RefreshTokenDTO {
     @ApiProperty({
         name: 'id',
         description: 'Token id to update the session.',
-        example: '25c67d64-0804-471e-b104-ccac3258a2f3'
+        example: '25c67d64-0804-471e-b104-ccac3258a2f3',
     })
     @IsString()
     @IsNotEmpty()

@@ -2,7 +2,6 @@ import {
     CanActivate,
     ExecutionContext,
     Injectable,
-    // NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -32,7 +31,9 @@ export class AuthGuard implements CanActivate {
         const token = this.extractTokenFromHeader(request);
 
         if (!token) {
-            throw new UnauthorizedException('Missing authorization token.');
+            throw new UnauthorizedException(
+                'Token de autorização está faltando.',
+            );
         }
 
         try {
@@ -42,7 +43,9 @@ export class AuthGuard implements CanActivate {
 
             request['token'] = payload;
         } catch {
-            throw new UnauthorizedException('Error in authorization checking.');
+            throw new UnauthorizedException(
+                'Erro na verificação de autorização.',
+            );
         }
 
         return true;
