@@ -18,7 +18,7 @@ export class IngredientsService {
             await this.ingredientsRepository.findByName(name);
 
         if (ingredientFound) {
-            throw new ConflictException('This ingredient already in use.');
+            throw new ConflictException('O ingrediente já está em uso.');
         }
 
         const ingredient = await this.ingredientsRepository.create({
@@ -38,7 +38,7 @@ export class IngredientsService {
         const ingredientFound = await this.ingredientsRepository.findById(id);
 
         if (!ingredientFound) {
-            throw new NotFoundException('Ingredient not found.');
+            throw new NotFoundException('Ingrediente não encontrado.');
         }
 
         return ingredientFound;
@@ -48,7 +48,7 @@ export class IngredientsService {
         const ingredientFound = await this.ingredientsRepository.findById(id);
 
         if (!ingredientFound) {
-            throw new NotFoundException('Ingredient not found.');
+            throw new NotFoundException('Ingrediente não encontrado.');
         }
 
         const newIngredient = {
@@ -68,7 +68,7 @@ export class IngredientsService {
         const ingredientFound = await this.ingredientsRepository.findById(id);
 
         if (!ingredientFound) {
-            throw new NotFoundException('Ingredient not found.');
+            throw new NotFoundException('Ingrediente não encontrado.');
         }
 
         await this.ingredientsRepository.remove(id);
