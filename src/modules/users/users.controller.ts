@@ -195,8 +195,15 @@ export class UsersController {
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
     @ApiBearerAuth()
+    @ApiOkResponse({
+        description: 'Usuário deletado com sucesso.',
+    })
     @ApiUnauthorizedResponse({
         description: 'Usuário não autenticado.',
+        type: ErrorResponse,
+    })
+    @ApiBadRequestResponse({
+        description: 'Você não pode remover seu próprio usuário.',
         type: ErrorResponse,
     })
     @ApiParam({

@@ -15,7 +15,7 @@ export class CategoriesService {
         const categoryFound = await this.categoriesRepository.findByName(name);
 
         if (categoryFound) {
-            throw new ConflictException('This category already in use.');
+            throw new ConflictException('A categoria já está em uso.');
         }
 
         const category = await this.categoriesRepository.create({
@@ -35,7 +35,7 @@ export class CategoriesService {
         const category = await this.categoriesRepository.findById(id);
 
         if (!category) {
-            throw new ConflictException('Category not found.');
+            throw new ConflictException('Categoria não encontrada.');
         }
 
         return category;
@@ -45,7 +45,7 @@ export class CategoriesService {
         const categoryFound = await this.categoriesRepository.findById(id);
 
         if (!categoryFound) {
-            throw new NotFoundException('Category not found.');
+            throw new NotFoundException('Categoria não encontrada.');
         }
 
         const newCategory = {
@@ -65,7 +65,7 @@ export class CategoriesService {
         const categoryFound = await this.categoriesRepository.findById(id);
 
         if (!categoryFound) {
-            throw new NotFoundException('Category not found.');
+            throw new NotFoundException('Categoria não encontrada.');
         }
 
         await this.categoriesRepository.remove(id);
