@@ -34,7 +34,7 @@ export class ProductsService {
         const productFound = await this.productsRepository.findByName(name);
 
         if (productFound) {
-            throw new ConflictException('This product already exists.');
+            throw new ConflictException('O produto já está em uso.');
         }
 
         let imageId: string = null;
@@ -83,7 +83,7 @@ export class ProductsService {
         const product = await this.productsRepository.findById(id);
 
         if (!product) {
-            throw new NotFoundException('Product not found.');
+            throw new NotFoundException('Produto não encontrado.');
         }
 
         return product;
@@ -93,7 +93,7 @@ export class ProductsService {
         const product = await this.productsRepository.findById(id);
 
         if (!product) {
-            throw new NotFoundException('Product not found.');
+            throw new NotFoundException('Produto não encontrado.');
         }
 
         const { image, ...rest } = updateProductDto;
@@ -114,7 +114,7 @@ export class ProductsService {
         const product = await this.productsRepository.findById(id);
 
         if (!product) {
-            throw new NotFoundException('Product not found.');
+            throw new NotFoundException('Produto não encontrado.');
         }
 
         const imageId = await this.productsRepository.getImageId(id);

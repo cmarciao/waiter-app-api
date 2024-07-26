@@ -8,7 +8,7 @@ export class UpdateCategoryDto {
     @IsOptional()
     @ApiProperty({
         name: 'emoji',
-        description: 'Emoji of the new category.',
+        description: 'Emoji of the category.',
         example: '🍕',
     })
     emoji?: string;
@@ -18,7 +18,7 @@ export class UpdateCategoryDto {
     @IsOptional()
     @ApiProperty({
         name: 'name',
-        description: 'Name of the new category.',
+        description: 'Name of the category.',
         example: 'Pizzas',
     })
     name?: string;

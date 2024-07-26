@@ -71,7 +71,7 @@ export class IngredientsController {
         description: 'Id do ingrediente que será pesquisado.',
     })
     @ApiNotFoundResponse({
-        description: 'Ingredient não encontrado.',
+        description: 'Ingrediente não encontrado.',
         type: ErrorResponse,
     })
     findOne(@Param('id') id: string) {

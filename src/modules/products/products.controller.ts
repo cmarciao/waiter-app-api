@@ -22,7 +22,26 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductPipe } from 'src/shared/pipes/create-product.pipe';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UpdateProductPipe } from 'src/shared/pipes/update-product.pipe';
+import {
+    ApiBearerAuth,
+    ApiConflictResponse,
+    ApiConsumes,
+    ApiCreatedResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiParam,
+    ApiTags,
+    ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { ErrorResponse } from 'src/shared/types/ErrorResponse';
+import { ProductResponseDto } from './dto/product-response.dto';
 
+@ApiTags('products')
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({
+    description: 'Usuário não autenticado.',
+    type: ErrorResponse,
+})
 @Controller('products')
 export class ProductsController {
     constructor(private readonly productsService: ProductsService) {
@@ -30,10 +49,28 @@ export class ProductsController {
     }
 
     @Get()
+    @ApiOkResponse({
+        isArray: true,
+        type: ProductResponseDto,
+        description: 'Lista de todos os produtos.',
+    })
     findAll() {
         return this.productsService.findAll();
     }
 
+    @ApiOkResponse({
+        description: 'A categoria pesquisada.',
+        type: ProductResponseDto,
+        isArray: true,
+    })
+    @ApiParam({
+        name: 'id',
+        description: 'Id do produto que será pesquisado.',
+    })
+    @ApiNotFoundResponse({
+        description: 'Produto não encontrado.',
+        type: ErrorResponse,
+    })
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.productsService.findOne(id);
@@ -49,6 +86,15 @@ export class ProductsController {
     @Roles(UserType.ADMIN)
     @UseInterceptors(FileInterceptor('image'))
     @UsePipes(new CreateProductPipe())
+    @ApiConsumes('multipart/form-data')
+    @ApiCreatedResponse({
+        description: 'O produto criado.',
+        type: ProductResponseDto,
+    })
+    @ApiConflictResponse({
+        description: 'O produto já está em uso.',
+        type: ErrorResponse,
+    })
     create(
         @UploadedFile() file: Express.Multer.File,
         @Body() createProductDto: CreateProductDto,
@@ -64,6 +110,19 @@ export class ProductsController {
     @Roles(UserType.ADMIN)
     @UseInterceptors(FileInterceptor('image'))
     @UsePipes(new UpdateProductPipe())
+    @ApiConsumes('multipart/form-data')
+    @ApiParam({
+        name: 'id',
+        description: 'Id do produto que será atualizado.',
+    })
+    @ApiOkResponse({
+        description: 'O ingrediente atualizado.',
+        type: ProductResponseDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Produto não encontrado.',
+        type: ErrorResponse,
+    })
     update(
         @Param('id') id: string,
         @UploadedFile() file: Express.Multer.File,
@@ -81,6 +140,13 @@ export class ProductsController {
     @Delete(':id')
     @UseGuards(RoleGuard)
     @Roles(UserType.ADMIN)
+    @ApiOkResponse({
+        description: 'Produto deletado com sucesso.',
+    })
+    @ApiParam({
+        name: 'id',
+        description: 'Id do produto que será deletado.',
+    })
     remove(@Param('id') id: string) {
         return this.productsService.remove(id);
     }
