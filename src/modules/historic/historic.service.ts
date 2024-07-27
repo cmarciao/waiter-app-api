@@ -25,7 +25,9 @@ export class HistoricService {
         const hasOrders = await this.ordersRepository.findOrdersNotInHistoric();
 
         if (hasOrders.length === 0) {
-            throw new BadRequestException('There are no orders to be updated.');
+            throw new BadRequestException(
+                'Não há pedidos para colocar em histórico',
+            );
         }
 
         const historic =
