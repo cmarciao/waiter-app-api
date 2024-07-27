@@ -56,7 +56,7 @@ export class OrdersService {
         const orderFound = await this.ordersRepository.findById(id);
 
         if (!orderFound) {
-            throw new NotFoundException('Order not found.');
+            throw new NotFoundException('Pedido não encontrado.');
         }
 
         return orderFound;
@@ -66,7 +66,7 @@ export class OrdersService {
         const orderFound = await this.ordersRepository.findById(id);
 
         if (!orderFound) {
-            throw new NotFoundException('Order not found.');
+            throw new NotFoundException('Pedido não encontrado.');
         }
 
         const order = await this.ordersRepository.update(id, updateOrderDto);
@@ -88,7 +88,7 @@ export class OrdersService {
         const orderFound = await this.ordersRepository.findById(id);
 
         if (!orderFound) {
-            throw new NotFoundException('Order not found.');
+            throw new NotFoundException('Pedido não encontrado.');
         }
 
         await this.ordersRepository.remove(id);

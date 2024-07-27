@@ -59,7 +59,7 @@ export class ProductsController {
     }
 
     @ApiOkResponse({
-        description: 'A categoria pesquisada.',
+        description: 'O produto pesquisado.',
         type: ProductResponseDto,
         isArray: true,
     })
@@ -116,7 +116,7 @@ export class ProductsController {
         description: 'Id do produto que será atualizado.',
     })
     @ApiOkResponse({
-        description: 'O ingrediente atualizado.',
+        description: 'O produto atualizado.',
         type: ProductResponseDto,
     })
     @ApiNotFoundResponse({

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get, Patch, Req } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -19,7 +19,7 @@ export class NotificationsController {
         return this.notificationsService.hasNotifications(id);
     }
 
-    @Post('read')
+    @Patch('read')
     read(@Req() request: Request) {
         const { sub: id } = request['token'];
         return this.notificationsService.markAsRead(id);
